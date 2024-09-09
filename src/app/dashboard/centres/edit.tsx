@@ -8,32 +8,36 @@ import { Form } from '@/components/ui/form';
 import { FormError } from '@/components/form-error';
 import { Loader2 } from 'lucide-react';
 import { DialogAlert } from '@/components/dialog-alert';
-import { useCreateCentre } from '@/lib/hooks/use-centre';
+import { useUpdateCentre } from '@/lib/hooks/use-centre';
 import { useAppStore } from '@/lib/stores/app-store';
 
-export default function NewCentrePage() {
-  const {openToAddCentre, setOpenToAddCentre, centre} = useAppStore();
-  const { form, onSubmit, error, isPending } = useCreateCentre(() => setOpenToAddCentre(false));
+export default function EditCentrePage() {
+  const {openToEditCentre, setOpenToEditCentre, centre} = useAppStore();
+  let centreId = centre ? centre.id : ''
+  const { form, onSubmit, error, isPending } = useUpdateCentre(
+    centreId,
+    () => setOpenToEditCentre(false)
+  );
 
 
   return (
     <DialogAlert 
-        isOpen={openToAddCentre} 
-        onClose={() => setOpenToAddCentre(false)} 
-        title='Ajouter un centre'
+        isOpen={openToEditCentre} 
+        onClose={() => setOpenToEditCentre(false)} 
+        title='Modification'
         size='lg'
-        description='Ajouter un nouveau centre'>
+        description='Mettre à jour ce centre'>
           <Form {...form}>
             <form onSubmit={onSubmit}>
               <CardContent className="space-y-4">
                   <FormInput
                     form={form}
                     name="name"
-                    label={`name ${centre ? centre.name : ''}`}
+                    label="Nom"
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez le nom du centre",
-                      defaultValue: 'hello'
+                      defaultValue:centre?.name
                     }}
                   />
                   <FormInput
@@ -43,7 +47,7 @@ export default function NewCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez la prefecture",
-                      defaultValue: centre ? centre.prefecture : undefined
+                      defaultValue: centre?.prefecture
                     }}
                   />
                   <FormInput
@@ -53,7 +57,7 @@ export default function NewCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez la commune",
-                      defaultValue: centre ? centre.commune : undefined
+                      defaultValue: centre?.commune
                     }}
                   />
                   <FormInput
@@ -63,7 +67,7 @@ export default function NewCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez le quartier",
-                      defaultValue: centre ? centre.quartier : undefined
+                      defaultValue: centre?.quartier
                     }}
                   />
                 {error && <FormError message={error} />}
@@ -71,7 +75,7 @@ export default function NewCentrePage() {
               <CardFooter>
                 <Button disabled={isPending} type="submit" className="w-full justify-center">
                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Ajouter un centre
+                    Modifier
                 </Button>
               </CardFooter>
             </form>

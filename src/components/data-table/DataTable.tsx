@@ -87,12 +87,12 @@ export function DataTable<T>({
       </CardHeader>
       <div className="flex flex-col sm:flex-row justify-between my-3 mx-2 gap-2">
         <Search value={globalFilter} onChange={setGlobalFilter} />
-        {filterOptions && <Filters
+        {/* {filterOptions && <Filters
             onApplyFilters={handleFiltersChange}
             filterOptions={filterOptions}
             loading={loading}
           />
-        }
+        } */}
         {/* {
           exportEndPoint && exportFileName && <ExportExcelButton 
             filters={filters}

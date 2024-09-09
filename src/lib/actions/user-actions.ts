@@ -7,6 +7,8 @@ import bcrypt from 'bcryptjs';
 import { z } from "zod";
 import { handleError } from "../error-handler";
 import { MapperDTO } from "@/types/mapper-typer";
+import { FilterParams } from "@/components/data-table/types";
+import { AppConstants } from "../constants";
 const prisma = new PrismaClient()
 
 export async function createUser(userData: CreateUserDTO) {
@@ -67,7 +69,7 @@ export async function getUserById(userId: string): Promise<UserDTO | null> {
   }
 }
 
-export async function getAllUsers(filters = {}, page = 1, limit = 10): Promise<MapperDTO<UserDTO>> {
+export async function getAllUsers({page = 1, limit = AppConstants.pageSize, filters}: FilterParams): Promise<MapperDTO<UserDTO>> {
   try {
     const skip = (page - 1) * limit;
     const where = { ...filters };

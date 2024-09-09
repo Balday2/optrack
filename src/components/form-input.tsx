@@ -27,6 +27,7 @@ type SelectInputProps<TFieldValues extends FieldValues> = BaseInputProps<TFieldV
   type: 'select'
   options: { value: string; label: string }[]
   multiple?: boolean
+  defaultLabel?: string
 }
 
 type FormInputProps<TFieldValues extends FieldValues> = StandardInputProps<TFieldValues> | SelectInputProps<TFieldValues>
@@ -52,7 +53,7 @@ export function FormInput<TFieldValues extends FieldValues>(props: FormInputProp
                 {...(props.multiple ? { multiple: true } : {})}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une option" />
+                  <SelectValue placeholder={props.defaultLabel || label} />
                 </SelectTrigger>
                 <SelectContent>
                   {props.options.map((option) => (

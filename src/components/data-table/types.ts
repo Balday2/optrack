@@ -41,3 +41,8 @@ export type FilterParams = {
   limit?: number;
   filters?: Record<string, any>;
 }
+
+export interface FilterParamsx {
+  filters?: FilterState,
+  pagination: PaginationState
+}

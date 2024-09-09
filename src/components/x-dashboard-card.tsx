@@ -1,31 +1,30 @@
 "use client";
 
 import React from "react";
-import { TrendingUp } from "lucide-react";
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Progress } from "@radix-ui/react-progress";
-import { Button } from "./ui/button";
 import { useGetAllUsers } from "@/lib/hooks/use-user";
+import { AppConstants } from "@/lib/constants";
+import { useGetAllCentres } from "@/lib/hooks/use-centre";
 
 export default function XDashboardCard() {
-  const { users } = useGetAllUsers()  
+
+  const { users } = useGetAllUsers({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
+  const { centres } = useGetAllCentres({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
       <CardValue 
         label="Centres" 
-        value={100} 
+        value={centres?.pagination?.totalCount ?? 0} 
       />
       <CardValue
         label="Coordinateurs"
-        value={users && users.pagination.totalCount}
+        value={users?.pagination?.totalCount ?? 0} 
       />
       <CardValue
         label="Operateurs"

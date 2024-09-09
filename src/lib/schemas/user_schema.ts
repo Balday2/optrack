@@ -9,10 +9,11 @@ export const CreateUserSchema = z.object({
   sexe: z.string({message: 'Sexe invalide'}),
   adresse: z.string({message: 'Adresse invalide'}),
   etatCivil: z.string({message: 'Etat civil invalide'}),
+  centre_id: z.string({message: 'Centre invalide'}),
   password: z
     .string({ message: 'Mot de passe invalide' })
     .length(6, 'Le mot de passe doit avoir exactement six (6) chiffres') // Vous pouvez ajuster la longueur selon vos besoins
-    .regex(/^\d+$/, 'Le mot de passe doit contenir uniquement des chiffres'),
+    .regex(/^\d+$/, 'Le mot de passe doit contenir uniquement des chiffres')
   
 }).strict();
 

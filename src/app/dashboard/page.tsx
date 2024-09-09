@@ -1,29 +1,32 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { DataTable } from '@/components/data-table/DataTable'
 import columns from './coordinator-columns'
 import { PaginationState, FilterState } from '@/components/data-table/types'
-import { AppConstants, QUERY_KEY } from '@/lib/constants'
+import { AppConstants } from '@/lib/constants'
 import { UserDTO } from '@/lib/dtos/user_dto'
 import { StatusEnum } from '@/lib/enums/status_enum'
 import { useGetAllUsers } from '@/lib/hooks/use-user'
 import NewCoordinatorPage from './add-new-coordinator'
+import { useGetAllCentres } from '@/lib/hooks/use-centre'
+import EditCoordinatorPage from './edit-coordinator'
+import DeleteCoordinatorPage from './delete-coordinator'
+import { useAppStore } from '@/lib/stores/app-store'
 
 
 export default function DashboardPage() {
 
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: AppConstants.pageSize })
   const [filters, setFilters] = useState<FilterState>({})
-  const [dialog, setDialog] = useState(false);
+  const {setOpenToAddUser} = useAppStore();
 
-  const { users, error, fetchUsers, isPending } = useGetAllUsers()
+
+  const { users, error, isLoading } = useGetAllUsers({ filters, pagination });
   const handlePaginationChange = (newPagination: PaginationState) => setPagination(newPagination)
   const handleFiltersChange = (newFilters: FilterState) => setFilters(newFilters)
+  const { centres } = useGetAllCentres({ getAllCentres: true });
 
-  useEffect(() => {
-    fetchUsers()
-  }, [pagination, filters])
 
 
 
@@ -33,23 +36,20 @@ export default function DashboardPage() {
 
   return (
     <div className='relative'>
-      <NewCoordinatorPage 
-        isOpen={dialog}
-        onClose={() => setDialog(false)}
-        title='Ajouter un coordinateur'
-        description='Ajouter un nouveau coordinateur'
-      />
+      <NewCoordinatorPage centres={centres?.data ?? []} />
+      <EditCoordinatorPage centres={centres?.data ?? []} />
+      <DeleteCoordinatorPage />
       <DataTable<UserDTO>
         data={users?.data ?? []}
         title='Liste des coordinateurs'
         columns={columns}
-        totalItems={users?.pagination.totalPages ?? 0}
+        totalItems={users?.pagination.totalCount ?? 0}
         onPaginationChange={handlePaginationChange}
         onFiltersChange={handleFiltersChange}
         filterOptions={filterOptions!}
-        error={error ?? undefined}
-        loading={isPending}
-        addNew={() => setDialog(true)}
+        error={error?.message}
+        loading={isLoading}
+        addNew={() => setOpenToAddUser(true)}
         addNewLabel='Ajouter un coordinateur'
         exportEndPoint='/commissions'
         exportFileName='commissions'
