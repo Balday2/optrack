@@ -1,11 +1,14 @@
 export const QUERY_KEY = {
   CENTRES: 'centres',
-  USERS: 'users'
+  USERS: 'users',
+  OPERATORS: 'operators',
+  OPERATIONS: 'operations',
+  DAILY_OPERATIONS: 'daily_operations'
 }
 
 
 export const AppConstants = {
-  pageSize: 3,
+  pageSize: 20,
   LOGOUT: {
     LABEL: 'Déconnexion',
     TITLE: `Etes-vous sûr de vouloir vous déconnecter ?`,

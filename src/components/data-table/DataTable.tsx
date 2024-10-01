@@ -58,17 +58,21 @@ export function DataTable<T>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    pageCount: Math.ceil(totalItems / pagination.pageSize),
+    pageCount: totalItems && Math.ceil(totalItems / pagination.pageSize),
     manualPagination: true,
   })
 
   useEffect(() => {
-    onPaginationChange(pagination)
+    if (onPaginationChange) {
+      onPaginationChange(pagination)
+    }
   }, [pagination, onPaginationChange])
 
   const handleFiltersChange = (newFilters: FilterState) => {
     setFilters(newFilters)
-    onFiltersChange(newFilters)
+    if(onFiltersChange){
+      onFiltersChange(newFilters)
+    }
     setPagination({ ...pagination, pageIndex: 0 })
   }
 
@@ -87,12 +91,12 @@ export function DataTable<T>({
       </CardHeader>
       <div className="flex flex-col sm:flex-row justify-between my-3 mx-2 gap-2">
         <Search value={globalFilter} onChange={setGlobalFilter} />
-        {/* {filterOptions && <Filters
+        {filterOptions && <Filters
             onApplyFilters={handleFiltersChange}
             filterOptions={filterOptions}
             loading={loading}
           />
-        } */}
+        }
         {/* {
           exportEndPoint && exportFileName && <ExportExcelButton 
             filters={filters}
@@ -100,14 +104,19 @@ export function DataTable<T>({
             fileName={exportFileName}
           />
         } */}
-        <Button
-          onClick={addNew}
-          size="sm"
-          className="h-7 text-sm"
-          disabled={loading}
-        >
-          <span>{addNewLabel}</span>
-        </Button>
+
+        {
+          addNewLabel && (
+            <Button
+              onClick={addNew}
+              size="sm"
+              className="h-7 text-sm"
+              disabled={loading}
+            >
+              <span>{addNewLabel}</span>
+            </Button>
+          )
+        }
       </div>
       <div className='border bg-white rounded-md'>
         <Table>
@@ -154,14 +163,16 @@ export function DataTable<T>({
             )}
           </TableBody>
         </Table>
-        <Pagination
-          currentPage={pagination.pageIndex + 1}
-          loading={loading}
-          totalPages={table.getPageCount()}
-          onPageChange={(page) =>
-            setPagination({ ...pagination, pageIndex: page - 1 })
-          }
-        />
+        {
+          totalItems && <Pagination
+            currentPage={pagination.pageIndex + 1}
+            loading={loading}
+            totalPages={table.getPageCount()}
+            onPageChange={(page) =>
+              setPagination({ ...pagination, pageIndex: page - 1 })
+            }
+          />
+        }
       </div>
     </Card>
   )

@@ -9,4 +9,5 @@ export type UpdateCentreDTO = z.infer<typeof UpdateCentreSchema>
 
 export interface CentreDTO extends CreateCentreDTO {
   id: string
+  status: string
 }

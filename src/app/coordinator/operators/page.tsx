@@ -2,61 +2,54 @@
 
 import React, { useState } from 'react'
 import { DataTable } from '@/components/data-table/DataTable'
-import columns from './coordinator-columns'
 import { PaginationState, FilterState } from '@/components/data-table/types'
 import { AppConstants } from '@/lib/constants'
 import { UserDTO } from '@/lib/dtos/user_dto'
 import { StatusEnum } from '@/lib/enums/status_enum'
-import NewCoordinatorPage from './add-coordinator'
-import { useGetAllCentres } from '@/lib/hooks/use-centre'
-import EditCoordinatorPage from './edit-coordinator'
-import ToggleCoordinatorPage from './toggle-coordinator'
 import { useAppStore } from '@/lib/stores/app-store'
-import { useGetCoordinators } from '@/lib/hooks/use-user'
+import NewOperatorPage from './add-operator'
+import EditOperatorPage from './edit-operator'
+import columns from '@/app/dashboard/coordinator-columns'
+import ToggleOperatorPage from './toggle-operator'
+import { useGetOperatorsByCoordinator } from '@/lib/hooks/use-user'
 
 
-export default function DashboardPage() {
+export default function CoordinatorPage() {
 
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: AppConstants.pageSize })
+  const [filters, setFilters] = useState<FilterState>({})
   const {setOpenToAddUser} = useAppStore();
   
-  const [filters, setFilters] = useState<FilterState>({})
-  const { users, error, isLoading } = useGetCoordinators({ 
-    filters:{
-      ...filters,
-      status: filters['status'] && filters['status'][0]
-    },
-    page: pagination.pageIndex + 1,
-    limit: pagination.pageSize,
-  });
+
+
+  const { users, error, isLoading } = useGetOperatorsByCoordinator({ filters, pagination });
   const handlePaginationChange = (newPagination: PaginationState) => setPagination(newPagination)
   const handleFiltersChange = (newFilters: FilterState) => setFilters(newFilters)
-  const { centres, isLoading: loadCentres } = useGetAllCentres({ getAllCentres: true });
 
 
 
 
   const filterOptions = {
-    status: ['actif', 'inactif'],
+    status: Object.values(StatusEnum) as StatusEnum[],
   }
 
   return (
     <div className='relative'>
-      <NewCoordinatorPage centres={centres?.data ?? []} />
-      <EditCoordinatorPage centres={centres?.data ?? []} />
-      <ToggleCoordinatorPage />
+      <NewOperatorPage />
+      <EditOperatorPage  />
+      <ToggleOperatorPage />
       <DataTable<UserDTO>
         data={users?.data ?? []}
-        title='Liste des coordinateurs'
+        title='Liste des operateurs'
         columns={columns}
         totalItems={users?.pagination.totalCount ?? 0}
         onPaginationChange={handlePaginationChange}
         onFiltersChange={handleFiltersChange}
         filterOptions={filterOptions!}
         error={error?.message}
-        loading={isLoading || loadCentres}
+        loading={isLoading}
         addNew={() => setOpenToAddUser(true)}
-        addNewLabel='Ajouter un coordinateur'
+        addNewLabel='Ajouter un operateur'
         exportEndPoint='/commissions'
         exportFileName='commissions'
       />

@@ -26,7 +26,6 @@ export interface UserDTO extends CreateUserDTO {
   id: string
   status: string
   role: string
-  centre_id: string | null
 }
 
 

@@ -12,7 +12,7 @@ import { useCreateCentre } from '@/lib/hooks/use-centre';
 import { useAppStore } from '@/lib/stores/app-store';
 
 export default function NewCentrePage() {
-  const {openToAddCentre, setOpenToAddCentre, centre} = useAppStore();
+  const {openToAddCentre, setOpenToAddCentre, selectedCentre} = useAppStore();
   const { form, onSubmit, error, isPending } = useCreateCentre(() => setOpenToAddCentre(false));
 
 
@@ -29,7 +29,7 @@ export default function NewCentrePage() {
                   <FormInput
                     form={form}
                     name="name"
-                    label={`name ${centre ? centre.name : ''}`}
+                    label={`name ${selectedCentre ? selectedCentre.name : ''}`}
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez le nom du centre",
@@ -43,7 +43,7 @@ export default function NewCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez la prefecture",
-                      defaultValue: centre ? centre.prefecture : undefined
+                      defaultValue: selectedCentre ? selectedCentre.prefecture : undefined
                     }}
                   />
                   <FormInput
@@ -53,7 +53,7 @@ export default function NewCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez la commune",
-                      defaultValue: centre ? centre.commune : undefined
+                      defaultValue: selectedCentre ? selectedCentre.commune : undefined
                     }}
                   />
                   <FormInput
@@ -63,7 +63,7 @@ export default function NewCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez le quartier",
-                      defaultValue: centre ? centre.quartier : undefined
+                      defaultValue: selectedCentre ? selectedCentre.quartier : undefined
                     }}
                   />
                 {error && <FormError message={error} />}

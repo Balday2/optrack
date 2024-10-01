@@ -9,6 +9,7 @@ import { handleError } from "../error-handler";
 import { MapperDTO } from "@/types/mapper-typer";
 import { FilterParams } from "@/components/data-table/types";
 import { AppConstants } from "../constants";
+import { RoleEnum } from "../enums/role_enum";
 const prisma = new PrismaClient()
 
 export async function createUser(userData: CreateUserDTO) {
@@ -45,10 +46,13 @@ export async function updateUser(userId: string, userData: UpdateUserDTO) {
   }
 }
 
-export async function deleteUser(userId: string) {
+export async function toggleUser(userId: string, status: string) {
   try {
-    await prisma.user.delete({
+    await prisma.user.update({
       where: { id: userId },
+      data: {
+        status: status === 'actif' ? 'inactif' : 'actif'
+      }
     });
   } catch (error) {
     throw handleError(error);
@@ -63,17 +67,27 @@ export async function getUserById(userId: string): Promise<UserDTO | null> {
     if (!user) {
       throw new Error('User not found');
     }
-    return user;
+    const userDTO = {
+      ...user,  
+      centre_id: user.centre_id ?? undefined, 
+      coordinator_id: user.coordinator_id ?? undefined
+    };
+    return userDTO;
   } catch (error) {
     throw handleError(error);
   }
 }
 
-export async function getAllUsers({page = 1, limit = AppConstants.pageSize, filters}: FilterParams): Promise<MapperDTO<UserDTO>> {
+export async function getUsers({
+  page = 1, 
+  limit = AppConstants.pageSize, 
+  filters,
+}: FilterParams & {getAllUsers?: boolean}): Promise<MapperDTO<UserDTO>> {
   try {
     const skip = (page - 1) * limit;
-    const where = { ...filters };
-
+    const where = { 
+      ...filters
+    };
     const [users, totalCount] = await Promise.all([
       prisma.user.findMany({
         where,
@@ -92,6 +106,7 @@ export async function getAllUsers({page = 1, limit = AppConstants.pageSize, filt
         totalPages: Math.ceil(totalCount / limit),
       },
     };
+
   } catch (error) {
     throw handleError(error);
   }

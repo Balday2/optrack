@@ -43,6 +43,14 @@ export type SideBarProps = {
 export const SIDEBAR_PATHS = {
   dashboard: `${BASIC_PATH}${ADMIN_PATH}`,
   coordinator: `${BASIC_PATH}${ADMIN_PATH}/coordinators`,
+  operator: `${BASIC_PATH}${ADMIN_PATH}/operators`,
   centre: `${BASIC_PATH}${ADMIN_PATH}/centres`,
   operation: `${BASIC_PATH}${ADMIN_PATH}/operations`,
+  dailyOperation: `${BASIC_PATH}${ADMIN_PATH}/daily-operation`,
+}
+
+export const COORDINATOR_PATHS = {
+  coordinator: `${BASIC_PATH}${COORDINATOR_PATH}`,
+  operator: `${BASIC_PATH}${COORDINATOR_PATH}/operators`,
+  newOperation: `${BASIC_PATH}${COORDINATOR_PATH}/new-operation`,
 }

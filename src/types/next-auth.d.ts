@@ -9,6 +9,7 @@ declare module "next-auth" {
       id?: string;
       role?: string;
       phone?: string;
+      centre_id?: string
     } & DefaultSession["user"];
   } 
 }
@@ -18,6 +19,7 @@ declare module "next-auth" {
     id?: string;
     role?: string;
     phone?: string;
+    centre_id?: string
     accessToken?: string;
   }
 }
@@ -27,6 +29,7 @@ declare module "next-auth/jwt" {
     accessToken?: string;
     id?: string;
     role?: string;
+    centre_id?: string
     phone?: string;
   }
 }

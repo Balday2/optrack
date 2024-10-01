@@ -13,14 +13,19 @@ model User {
   password   String
   nom        String
   prenom     String
+  matricule  String
   adresse     String
   sexe       String
   etatCivil  String
-  status     String  @default("active")
-  role       String  @default("coordinator")
+  status     String  @default("actif")
+  role       String  @default("coordinateur")
   centre_id  String? @db.ObjectId
   centre     Centre? @relation(fields: [centre_id], references: [id])
-  operations Operation[]
+  coordinatorOf Operation[]  @relation("Coordinator")
+  operatorOf  Operation[]  @relation("Operator")
+  coordinator_id String?    @db.ObjectId
+  coordinator    User?      @relation("UserCoordinator", fields: [coordinator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subordinates   User[]     @relation("UserCoordinator")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -33,6 +38,8 @@ model Centre {
   quartier  String
   teams     Team[]
   users     User[]
+  operations Operation[]
+  status     String  @default("actif")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -48,8 +55,13 @@ model Team {
 
 model Operation {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user_id   String @db.ObjectId
-  user      User   @relation(fields: [user_id], references: [id])
+  nombre    Int
+  centre_id   String @db.ObjectId
+  centre      Centre   @relation(fields: [centre_id], references: [id])
+  coordinator_id  String @db.ObjectId
+  coordinator    User     @relation("Coordinator", fields: [coordinator_id], references: [id])
+  operator_id   String @db.ObjectId
+  operator     User     @relation("Operator", fields: [operator_id], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

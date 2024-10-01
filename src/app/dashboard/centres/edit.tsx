@@ -12,9 +12,10 @@ import { useUpdateCentre } from '@/lib/hooks/use-centre';
 import { useAppStore } from '@/lib/stores/app-store';
 
 export default function EditCentrePage() {
-  const {openToEditCentre, setOpenToEditCentre, centre} = useAppStore();
-  let centreId = centre ? centre.id : ''
+  const {openToEditCentre, setOpenToEditCentre, selectedCentre} = useAppStore();
+  let centreId = selectedCentre ? selectedCentre.id : ''
   const { form, onSubmit, error, isPending } = useUpdateCentre(
+    selectedCentre,
     centreId,
     () => setOpenToEditCentre(false)
   );
@@ -37,7 +38,7 @@ export default function EditCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez le nom du centre",
-                      defaultValue:centre?.name
+                      defaultValue: selectedCentre?.name
                     }}
                   />
                   <FormInput
@@ -47,7 +48,7 @@ export default function EditCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez la prefecture",
-                      defaultValue: centre?.prefecture
+                      defaultValue: selectedCentre?.prefecture
                     }}
                   />
                   <FormInput
@@ -57,7 +58,7 @@ export default function EditCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez la commune",
-                      defaultValue: centre?.commune
+                      defaultValue: selectedCentre?.commune
                     }}
                   />
                   <FormInput
@@ -67,7 +68,7 @@ export default function EditCentrePage() {
                     type="standard"
                     inputProps={{ 
                       placeholder: "Entrez le quartier",
-                      defaultValue: centre?.quartier
+                      defaultValue: selectedCentre?.quartier
                     }}
                   />
                 {error && <FormError message={error} />}

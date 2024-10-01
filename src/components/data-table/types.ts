@@ -9,6 +9,11 @@ export type FilterState = {
   [key: string]: string[];
 };
 
+export type FilterStatex = {
+  status?: string;
+  role?: string;
+};
+
 export type SortingState = {
   id: string;
   desc: boolean;
@@ -18,16 +23,16 @@ export type DataTableProps<T> = {
   data: T[];
   title: string;
   columns: ColumnDef<T>[];
-  totalItems: number;
-  onPaginationChange: (pagination: PaginationState) => void;
-  onFiltersChange: (filters: FilterState) => void;
-  filterOptions: { [key: string]: string[] };
+  totalItems?: number;
+  onPaginationChange?: (pagination: PaginationState) => void;
+  onFiltersChange?: (filters: FilterState) => void;
+  filterOptions?: { [key: string]: string[] };
   loading?: boolean;
   error?: string;
   exportEndPoint?: string;
   exportFileName?: string;
-  addNew: () => void;
-  addNewLabel: string;
+  addNew?: () => void;
+  addNewLabel?: string;
 };
 
 export type MapperDTO<T> = {

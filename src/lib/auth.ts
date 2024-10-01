@@ -34,7 +34,8 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           phone: user.phone,
-          role: user.role ?? undefined
+          role: user.role ?? undefined,
+          centre_id: user.centre_id ?? undefined
         };
       },
     }),
@@ -48,6 +49,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.phone = user.phone;
         token.role = user.role;
+        token.centre_id = user.centre_id
       }
       return token;
     },
@@ -56,6 +58,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.phone = token.phone as string;
         session.user.role = token.role as string;
+        session.user.centre_id = token.centre_id as string
       }
       return session;
     },

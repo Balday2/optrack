@@ -2,30 +2,32 @@
 import React from 'react'
 import { FormInput } from '@/components/form-input'
 import { CardContent, CardFooter } from '@/components/ui/card'
-
 import { Button } from "@/components/ui/button";
-import { useCreateUser } from "@/lib/hooks/use-user";
+import { useUpdateUser } from "@/lib/hooks/use-user";
 import { Form } from '@/components/ui/form';
 import { FormError } from '@/components/form-error';
 import { Loader2 } from 'lucide-react';
 import { DialogAlert } from '@/components/dialog-alert';
 import { CentreDTO } from '@/lib/dtos/centre_dto';
+import { UserDTO } from '@/lib/dtos/user_dto';
 import { useAppStore } from '@/lib/stores/app-store';
+import { QUERY_KEY } from '@/lib/constants';
 
-export interface NewCoordinatorPageProps {
-  centres?: CentreDTO[]
-}
-export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps) {
-  const { form, onSubmit, error, isPending } = useCreateUser();
-  const {openToAddUser, user, setOpenToAddUser} = useAppStore();
 
+export default function EditOperatorPage() {
+  const {openToEditUser, user, setOpenToEditUser} = useAppStore();
+  let userId = user ? user!.id : ''
+  const { form, onSubmit, error, isPending } = useUpdateUser({
+    queryKey: QUERY_KEY.OPERATORS,
+    userId: userId
+  });
 
   return (
     <DialogAlert 
-        isOpen={openToAddUser}
-        onClose={() => setOpenToAddUser(false)} 
-        title='Ajouter un coordinateur'
-        description='Ajouter un nouveau coordinateur'>
+        isOpen={openToEditUser} 
+        onClose={() => setOpenToEditUser(false)} 
+        title={'Modification'}
+        description={`Modifier les informations de l\'utilisateur`}>
           <Form {...form}>
             <form onSubmit={onSubmit}>
               <CardContent className="space-y-4">
@@ -35,14 +37,20 @@ export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps)
                     name="prenom"
                     label="Prénom"
                     type="standard"
-                    inputProps={{ placeholder: "Entrez votre prénom" }}
+                    inputProps={{ 
+                      placeholder: "Entrez votre prénom",
+                      defaultValue: user?.prenom
+                    }}
                   />
                   <FormInput
                     form={form}
                     name="nom"
                     label="Nom"
                     type="standard"
-                    inputProps={{ placeholder: "Entrez votre nom" }}
+                    inputProps={{ 
+                      placeholder: "Entrez votre nom",
+                      defaultValue: user?.nom
+                    }}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -55,6 +63,7 @@ export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps)
                       { value: 'feminin', label: 'Féminin' },
                       { value: 'masculin', label: 'Masculin' },
                     ]}
+                    defaultLabel={user?.sexe}
                   />
                   <FormInput
                     form={form}
@@ -65,6 +74,7 @@ export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps)
                       { value: 'single', label: 'Célibataire' },
                       { value: 'marie', label: 'Marié(e)' },
                     ]}
+                    defaultLabel={user?.etatCivil}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -73,30 +83,20 @@ export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps)
                     name="adresse"
                     label="Adresse"
                     type="standard"
-                    inputProps={{ placeholder: "Entrez votre adresse" }}
-                  />
-                  <FormInput
-                    form={form}
-                    name="password"
-                    label="Mot de passe"
-                    type="standard"
-                    inputProps={{ placeholder: "Proposez un mot de passe" }}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormInput
-                    form={form}
-                    name="centre_id"
-                    label="Centre(s)"
-                    type="select"
-                    options={centres!.map(centre => ({ value: centre.id, label: centre.name }))}
+                    inputProps={{ 
+                        placeholder: "Entrez votre adresse",
+                        defaultValue: user?.adresse
+                     }}
                   />
                   <FormInput
                     form={form}
                     name="phone"
                     label="Téléphone"
                     type="standard"
-                    inputProps={{ placeholder: "Entrez votre numéro de téléphone" }}
+                    inputProps={{ 
+                      placeholder: "Entrez votre numéro de téléphone",
+                      defaultValue: user?.phone
+                    }}
                   />
                 </div>
                 {error && <FormError message={error} />}
@@ -104,7 +104,7 @@ export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps)
               <CardFooter>
                 <Button disabled={isPending} type="submit" className="w-full justify-center">
                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Ajouter un coordinateur
+                  Mettre à jour le operateur
                 </Button>
               </CardFooter>
             </form>

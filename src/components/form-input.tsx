@@ -15,6 +15,7 @@ type BaseInputProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
   name: FieldPath<TFieldValues>
   label: string
+  required?: boolean
   description?: string
 }
 
@@ -33,7 +34,7 @@ type SelectInputProps<TFieldValues extends FieldValues> = BaseInputProps<TFieldV
 type FormInputProps<TFieldValues extends FieldValues> = StandardInputProps<TFieldValues> | SelectInputProps<TFieldValues>
 
 export function FormInput<TFieldValues extends FieldValues>(props: FormInputProps<TFieldValues>) {
-  const { form, name, label, description } = props
+  const { form, name, label, description, required = true } = props
 
   return (
     <FormField
@@ -44,7 +45,7 @@ export function FormInput<TFieldValues extends FieldValues>(props: FormInputProp
           <FormLabel>{label}</FormLabel>
           <FormControl>
             {props.type === 'standard' ? (
-              <Input {...field} {...props.inputProps} />
+              <Input required={required} {...field} {...props.inputProps} />
             ) : (
               <Select 
                 onValueChange={field.onChange} 

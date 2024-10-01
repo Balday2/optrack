@@ -2,38 +2,30 @@
 import React from 'react'
 import { FormInput } from '@/components/form-input'
 import { CardContent, CardFooter } from '@/components/ui/card'
+
 import { Button } from "@/components/ui/button";
-import { useUpdateUser } from "@/lib/hooks/use-user";
+import { useCreateUser } from "@/lib/hooks/use-user";
 import { Form } from '@/components/ui/form';
 import { FormError } from '@/components/form-error';
 import { Loader2 } from 'lucide-react';
 import { DialogAlert } from '@/components/dialog-alert';
 import { CentreDTO } from '@/lib/dtos/centre_dto';
-import { UserDTO } from '@/lib/dtos/user_dto';
 import { useAppStore } from '@/lib/stores/app-store';
-import { QUERY_KEY } from '@/lib/constants';
 
-export interface EditCoordinatorPageProps {
+export interface NewCoordinatorPageProps {
   centres?: CentreDTO[]
 }
+export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps) {
+  const { form, onSubmit, error, isPending } = useCreateUser({});
+  const {openToAddUser, user, setOpenToAddUser} = useAppStore();
 
-export default function EditCoordinatorPage({ 
-  centres, 
-}: EditCoordinatorPageProps) {
-  const {openToEditUser, user, setOpenToEditUser} = useAppStore();
-  let userId = user ? user!.id : ''
-  let currentCentre = centres!.find(centre => centre.id === user?.centre_id);
-  const { form, onSubmit, error, isPending } = useUpdateUser({
-    queryKey: QUERY_KEY.USERS,
-    userId: userId
-  });
 
   return (
     <DialogAlert 
-        isOpen={openToEditUser} 
-        onClose={() => setOpenToEditUser(false)} 
-        title={'Modification'}
-        description={`Modifier les informations de l\'utilisateur`}>
+        isOpen={openToAddUser}
+        onClose={() => setOpenToAddUser(false)} 
+        title='Ajouter un coordinateur'
+        description='Ajouter un nouveau coordinateur'>
           <Form {...form}>
             <form onSubmit={onSubmit}>
               <CardContent className="space-y-4">
@@ -43,20 +35,14 @@ export default function EditCoordinatorPage({
                     name="prenom"
                     label="Prénom"
                     type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez le prénom",
-                      defaultValue: user?.prenom
-                    }}
+                    inputProps={{ placeholder: "Entrez le prénom" }}
                   />
                   <FormInput
                     form={form}
                     name="nom"
                     label="Nom"
                     type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez le nom",
-                      defaultValue: user?.nom
-                    }}
+                    inputProps={{ placeholder: "Entrez le nom" }}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -69,7 +55,6 @@ export default function EditCoordinatorPage({
                       { value: 'feminin', label: 'Féminin' },
                       { value: 'masculin', label: 'Masculin' },
                     ]}
-                    defaultLabel={user?.sexe}
                   />
                   <FormInput
                     form={form}
@@ -80,7 +65,6 @@ export default function EditCoordinatorPage({
                       { value: 'single', label: 'Célibataire' },
                       { value: 'marie', label: 'Marié(e)' },
                     ]}
-                    defaultLabel={user?.etatCivil}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,20 +73,14 @@ export default function EditCoordinatorPage({
                     name="adresse"
                     label="Adresse"
                     type="standard"
-                    inputProps={{ 
-                        placeholder: "Entrez l'adresse",
-                        defaultValue: user?.adresse
-                     }}
+                    inputProps={{ placeholder: "Entrez l'adresse" }}
                   />
                   <FormInput
                     form={form}
-                    name="phone"
-                    label="Téléphone"
+                    name="password"
+                    label="Mot de passe"
                     type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez le numéro de téléphone",
-                      defaultValue: user?.phone
-                    }}
+                    inputProps={{ placeholder: "Proposez un mot de passe" }}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,26 +89,29 @@ export default function EditCoordinatorPage({
                     name="centre_id"
                     label="Centre(s)"
                     type="select"
-                    options={centres!.map(centre => ({ value: centre.id, label: centre?.name+'-'+centre?.prefecture }))}
-                    defaultLabel={currentCentre?.name+'-'+currentCentre?.prefecture}
+                    options={centres!.map(centre => ({ value: centre.id, label: centre.name }))}
                   />
                   <FormInput
+                    form={form}
+                    name="phone"
+                    label="Téléphone"
+                    type="standard"
+                    inputProps={{ placeholder: "Entrez le numéro de téléphone" }}
+                  />
+                </div>
+                <FormInput
                     form={form}
                     name="matricule"
                     label="Matricule"
                     type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez le matricule",
-                      defaultValue: user?.matricule
-                    }}
+                    inputProps={{ placeholder: "Entrez le matricule" }}
                   />
-                </div>
                 {error && <FormError message={error} />}
               </CardContent>
               <CardFooter>
                 <Button disabled={isPending} type="submit" className="w-full justify-center">
                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Mettre à jour le coordinateur
+                  Ajouter un coordinateur
                 </Button>
               </CardFooter>
             </form>

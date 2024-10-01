@@ -22,7 +22,8 @@ export async function createCentre(centreData: CreateCentreDTO) {
   }
 }
 
-export async function updateCentre(centreId: string, centreData: UpdateCentreDTO) {
+
+export async function updateCentre({ centreId, centreData }: { centreId: string, centreData: UpdateCentreDTO }) {
   try {
     const validatedData = UpdateCentreSchema.parse(centreData);
     const centre = await prisma.centre.update({
@@ -35,10 +36,13 @@ export async function updateCentre(centreId: string, centreData: UpdateCentreDTO
   }
 }
 
-export async function deleteCentre(centreId: string) {
+export async function toggleCentre(centreId: string, status: string) {
   try {
-    await prisma.centre.delete({
+    await prisma.centre.update({
       where: { id: centreId },
+      data: { 
+        status: status === 'actif' ? 'inactif' : 'actif'
+      }
     });
   } catch (error) {
     throw handleError(error);

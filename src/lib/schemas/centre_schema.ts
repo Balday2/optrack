@@ -7,6 +7,6 @@ export const CreateCentreSchema = z.object({
   quartier: z.string({message: 'Quartier est requis'}),
 }).strict();
 
-export const UpdateCentreSchema = CreateCentreSchema.strict();
+export const UpdateCentreSchema = CreateCentreSchema.partial().strict();
 
 

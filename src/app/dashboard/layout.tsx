@@ -8,8 +8,10 @@ import { Separator } from "@/components/ui/separator";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { SIDEBAR_PATHS } from "@/routes";
+import { format } from "date-fns";
 
 export default function DashboardLayout({children}: {children: React.ReactNode}) {
+
 
   const path = usePathname()
   return (
@@ -25,13 +27,23 @@ export default function DashboardLayout({children}: {children: React.ReactNode})
                 <Separator className="bg-primary" />
                 <div className="flex gap-3 pb-2 font-light">
                   <Link 
+                    href={`${SIDEBAR_PATHS.dailyOperation}`}
+                    className={`px-2 text-lg ${path.includes('daily-operation') && 'border border-primary bg-gray-200 '}`}>
+                    {format(new Date().toISOString(), 'dd/MM/yyyy')}
+                  </Link>
+                  <Link 
+                    href={`${SIDEBAR_PATHS.operation}`}
+                    className={`px-2 text-lg ${path.includes('operations') && 'border border-primary bg-gray-200 '}`}>
+                    operations
+                  </Link>
+                  <Link 
                     href={`${SIDEBAR_PATHS.dashboard}`}
-                    className={`px-2 ${path.includes('dashboard') && !path.includes('centres') && 'border border-primary bg-gray-200 '}`}>
+                    className={`px-2 text-lg ${path.includes('dashboard') && (!path.includes('centres') && !path.includes('daily-operation') && !path.includes('operations')) && 'border border-primary bg-gray-200 '}`}>
                     coordinateurs
                   </Link>
                   <Link 
                     href={`${SIDEBAR_PATHS.centre}`}
-                    className={`px-2 ${path.includes('centres') && 'border border-primary bg-gray-200 '}`}>
+                    className={`px-2 text-lg ${path.includes('centres') && 'border border-primary bg-gray-200 '}`}>
                     centres
                   </Link>
                 </div>

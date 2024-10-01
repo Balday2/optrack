@@ -1,16 +1,16 @@
 import { useForm } from 'react-hook-form';
-import { useState, useTransition } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { handleClientError } from '../error-handler';
 import { CentreDTO, CreateCentreDTO, UpdateCentreDTO } from '../dtos/centre_dto';
 import { CreateCentreSchema, UpdateCentreSchema } from '../schemas/centre_schema';
-import { createCentre, deleteCentre, getAllCentres, getCentreById, updateCentre } from '../actions/centre-action';
+import { createCentre, toggleCentre, getAllCentres, getCentreById, updateCentre } from '../actions/centre-action';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppConstants, QUERY_KEY } from '../constants';
 import { PaginationState } from '@tanstack/react-table';
 import { FilterParams, FilterParamsx, FilterState } from '@/components/data-table/types';
 import { useAppStore } from '../stores/app-store';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 
 export function useCreateCentre(onClose: () => void) {
@@ -49,22 +49,23 @@ export function useCreateCentre(onClose: () => void) {
 }
 
 
-export function useUpdateCentre(centreId: string, onClose: () => void) {
+export function useUpdateCentre(centre: CentreDTO | null, centreId: string, onClose: () => void) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
-
-
+  
+  
   const form = useForm<UpdateCentreDTO>({
     resolver: zodResolver(UpdateCentreSchema),
     defaultValues: {},
   });
 
-  const onSubmit = form.handleSubmit(async (data) => {
+  
+  const onSubmit = form.handleSubmit(async (data: UpdateCentreDTO) => {
     setError(null);
     startTransition(async () => {
       try {
-        await updateCentre(centreId, data);
+        await updateCentre({centreId: centreId, centreData: data});
         toast.success("Centre mis à jour avec succès.");
         queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CENTRES] });
         onClose();
@@ -78,28 +79,28 @@ export function useUpdateCentre(centreId: string, onClose: () => void) {
   return { form, error, onSubmit, isPending };
 }
 
-export function useDeleteCentre() {
+export function useToggleCentre() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const {setOpenToDeleteCentre} = useAppStore();
+  const {setOpenToToggleCentre} = useAppStore();
 
 
-  const deleteCentreById = async (centreId: string) => {
+  const toggleCentreById = async (centreId: string, status: string) => {
     setError(null);
     startTransition(async () => {
       try {
-        await deleteCentre(centreId);
-        toast.success("Centre supprimé avec succès.");
+        await toggleCentre(centreId, status);
+        toast.success("Modification effectuée avec succès.");
         queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CENTRES] });
-        setOpenToDeleteCentre(false);
+        setOpenToToggleCentre(false);
       } catch (error: unknown) {
         setError(handleClientError(error));
       }
     });
   };
 
-  return { deleteCentreById, error, isPending };
+  return { toggleCentreById, error, isPending };
 }
 
 export function useGetCentreById(centreId: string) {
@@ -123,27 +124,21 @@ export function useGetCentreById(centreId: string) {
 }
 
 interface UseGetAllCentresParams {
-  filters?: FilterParams['filters'];
-  pagination?: {
-    pageIndex: number;
-    pageSize: number;
-  };
+  page?: number;
+  limit?: number;
+  filters?: Record<string, any>;
   getAllCentres?: boolean;
 }
 
 
 
-export function useGetAllCentres({
-  filters = {},
-  pagination,
-  getAllCentres: getAllCentresFlag = false
-}: UseGetAllCentresParams) {
+export function useGetAllCentres({ filters, page, limit, getAllCentres: getAllCentresFlag = false }: UseGetAllCentresParams) {
   const { data: centres, error, isLoading } = useQuery({
-    queryKey: [QUERY_KEY.CENTRES, { filters, pagination, getAllCentresFlag }],
+    queryKey: [QUERY_KEY.CENTRES, { filters, page, limit, getAllCentresFlag }],
     queryFn: () => getAllCentres({
       filters,
-      page: pagination ? pagination.pageIndex + 1 : undefined,
-      limit: pagination ? pagination.pageSize : undefined,
+      page: page ? page : undefined,
+      limit: limit ? limit : undefined,
       getAllCentres: getAllCentresFlag
     }),
     placeholderData: (prev) => prev,

@@ -7,14 +7,17 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { useGetAllUsers } from "@/lib/hooks/use-user";
 import { AppConstants } from "@/lib/constants";
 import { useGetAllCentres } from "@/lib/hooks/use-centre";
+import { useGetCoordinators, useGetOperators } from "@/lib/hooks/use-user";
+import { useGetOperations } from "@/lib/hooks/use-operation";
 
 export default function XDashboardCard() {
 
-  const { users } = useGetAllUsers({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
+  const { users: coordinators } = useGetCoordinators({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
+  const { users: operators } = useGetOperators({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
   const { centres } = useGetAllCentres({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
+  const { operations } = useGetOperations({ filters: {}, pagination: { pageIndex: 0, pageSize: 1} });
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
@@ -24,15 +27,15 @@ export default function XDashboardCard() {
       />
       <CardValue
         label="Coordinateurs"
-        value={users?.pagination?.totalCount ?? 0} 
+        value={coordinators?.pagination?.totalCount ?? 0} 
       />
       <CardValue
         label="Operateurs"
-        value={8}
+        value={operators?.pagination?.totalCount ?? 0}
       />
       <CardValue
-        label="Equipes"
-        value={7}
+        label="Operations"
+        value={operations?.pagination?.totalCount ?? 0}
       />
     </div>
   );
