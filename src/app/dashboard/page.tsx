@@ -57,8 +57,6 @@ export default function DashboardPage() {
         loading={isLoading || loadCentres}
         addNew={() => setOpenToAddUser(true)}
         addNewLabel='Ajouter un coordinateur'
-        exportEndPoint='/commissions'
-        exportFileName='commissions'
       />
     </div>
   )

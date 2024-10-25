@@ -54,9 +54,9 @@ export const operationColumn = (roleUser: string): ColumnDef<OperationDTO>[] => 
       header: "Nombre"
     },
     {
-      accessorKey: "updatedAt",
+      accessorKey: "date",
       header: "Date",
-      cell: ({ row }) => formatDate(row.original.updatedAt.toString())
+      cell: ({ row }) => formatDate(row.original.date.toString())
     }
   ]
   if(roleUser === RoleEnum.COORDINATOR){

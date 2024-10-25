@@ -34,8 +34,7 @@ export function DataTable<T>({
   filterOptions,
   loading,
   error,
-  exportEndPoint,
-  exportFileName,
+  exportComponent,
   title,
   addNew,
   addNewLabel
@@ -97,13 +96,8 @@ export function DataTable<T>({
             loading={loading}
           />
         }
-        {/* {
-          exportEndPoint && exportFileName && <ExportExcelButton 
-            filters={filters}
-            endpoint={exportEndPoint}
-            fileName={exportFileName}
-          />
-        } */}
+        
+        {exportComponent}
 
         {
           addNewLabel && (

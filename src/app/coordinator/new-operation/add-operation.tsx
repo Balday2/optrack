@@ -4,7 +4,6 @@ import { FormInput } from "@/components/form-input";
 import { CardContent, CardFooter } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import { useCreateUser } from "@/lib/hooks/use-user";
 import { Form } from "@/components/ui/form";
 import { FormError } from "@/components/form-error";
 import { Loader2 } from "lucide-react";
@@ -13,6 +12,7 @@ import { useAppStore } from "@/lib/stores/app-store";
 import { QUERY_KEY } from "@/lib/constants";
 import { useCreateOperation } from "@/lib/hooks/use-operation";
 import { UserDTO } from "@/lib/dtos/user_dto";
+import { XOperationDatePicker } from "./date-picker";
 
 export interface NewOperationPageProps {
   users?: UserDTO[];
@@ -34,6 +34,13 @@ export default function NewOperationModal({ users }: NewOperationPageProps) {
       <Form {...form}>
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
+            
+            <XOperationDatePicker 
+              form={form}
+              name="date"
+              label={`Date d'operation`}
+            />
+
             <FormInput
               form={form}
               name="nombre"

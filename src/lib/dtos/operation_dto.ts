@@ -4,6 +4,7 @@ import { z } from "zod";
 
 
 export const CreateOperationSchema = z.object({
+  date: z.date({ invalid_type_error: "La valeur doit être une date valide" }),
   nombre: z
   .number({ invalid_type_error: "La valeur doit être un nombre valide" })
   .int("La valeur doit être un entier")
@@ -25,6 +26,7 @@ export type UpdateOperationDTO = z.infer<typeof UpdateOperationSchema>;
 export interface OperationDTO {
   id: string;
   nombre: number;
+  date: Date,
   coordinator_id?: Omit<UserDTO, 'password'>
   operator_id?: Omit<UserDTO, 'password'>
   centre_id?: CentreDTO

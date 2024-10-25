@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { FilterState } from "./types";
 import { X } from "lucide-react";
+import { XDatePickerWithRange } from "./date-filter";
 
 interface FiltersProps {
   onApplyFilters: (filters: FilterState) => void;
@@ -28,7 +29,7 @@ export function Filters({ onApplyFilters, filterOptions, loading }: FiltersProps
     return initialFilters;
   });
 
-  const handleFilterChange = (key: string, value: string | undefined) => {
+  const handleFilterChange = (key: string, value: any | undefined) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value ? [value] : [],
@@ -50,6 +51,14 @@ export function Filters({ onApplyFilters, filterOptions, loading }: FiltersProps
 
   return (
       <div className="flex flex-col sm:flex-row gap-2">
+        <XDatePickerWithRange 
+          onChange={(value) => {
+            handleFilterChange("date", {
+              from: value?.from?.toISOString(),
+              to: value?.to?.toISOString(),
+            })
+          }}
+        />
         {Object.entries(filterOptions).map(([key, options]) => (
           <Select
             key={key}

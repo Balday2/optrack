@@ -1,6 +1,6 @@
 'use server'
 
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { UserDTO } from "../dtos/user_dto"
 import { handleError } from "../error-handler";
 import { MapperDTO } from "@/types/mapper-typer";
@@ -8,28 +8,36 @@ import { FilterParams } from "@/components/data-table/types";
 import { AppConstants } from "../constants";
 import { CreateOperationDTO, CreateOperationSchema, OperationDTO, UpdateOperationDTO, UpdateOperationSchema } from "../dtos/operation_dto";
 import { CentreDTO } from "../dtos/centre_dto";
-import { endOfDay, startOfDay } from "date-fns";
+import { endOfDay, startOfDay, isFuture } from "date-fns";
 import { RoleEnum } from "../enums/role_enum";
 const prisma = new PrismaClient()
 
 export async function createOperation(operation: CreateOperationDTO) {
   const validatedData = CreateOperationSchema.parse(operation)
+  const operationDate = new Date(validatedData.date)
   const today = new Date()
-  const startOfToday = startOfDay(today)
-  const endOfToday = endOfDay(today)
 
   try {
+    if (isFuture(operationDate)) {
+      throw new Error('Impossible d\'ajouter une opération pour une date future')
+    }
+
+    const startOfOperationDay = startOfDay(operationDate)
+    const endOfOperationDay = endOfDay(operationDate)
+
+    // Check if an operation already exists for the given date and operator
     const existingOperation = await prisma.operation.findFirst({
       where: {
-        operator_id: operation.operator_id,
-        createdAt: {
-          gte: startOfToday,
-          lte: endOfToday,
+        operator_id: validatedData.operator_id,
+        date: {
+          gte: startOfOperationDay,
+          lte: endOfOperationDay,
         },
       },
-    });
+    })
+
     if (existingOperation) {
-      throw new Error('Operation existe déjà pour aujourd’hui');
+      throw new Error('Une opération existe déjà pour cette date')
     }
     const result = await prisma.operation.create({ data: validatedData })
     return result;
@@ -57,7 +65,7 @@ export async function getDailyOperations(currentUserId: string, role?: string): 
   const startOfToday = startOfDay(today)
   const endOfToday = endOfDay(today)
   let where = {
-    createdAt: {
+    date: {
       gte: startOfToday,
       lte: endOfToday,
     },
@@ -65,7 +73,7 @@ export async function getDailyOperations(currentUserId: string, role?: string): 
 
   if(currentUserId && role === RoleEnum.COORDINATOR) {
     where = { ...where, coordinator_id: currentUserId } as {
-      createdAt: {
+      date: {
         gte: Date;
         lte: Date;
       };
@@ -89,6 +97,7 @@ export async function getDailyOperations(currentUserId: string, role?: string): 
     const formattedOperations: OperationDTO[] = operations.map(op => ({
       id: op.id,
       nombre: op.nombre,
+      date: op.date,
       coordinator_id: op.coordinator as Omit<UserDTO, 'password'>,
       operator_id: op.operator as Omit<UserDTO, 'password'>,
       centre: op.centre as CentreDTO,
@@ -111,12 +120,35 @@ export async function getOperations({
 }: FilterParams & { currentUserId?: string }): Promise<MapperDTO<OperationDTO>> {
   try {
     const skip = (page - 1) * limit;
-    let where = { ...filters };
+    let where = {};
+
+    if (filters) {
+      const { Fonction, Centre, date, ...otherFilters } = filters;
+      where = {
+        AND: [
+          { ...otherFilters },
+          Fonction ? {
+            OR: [
+              { operator: { role: Fonction } },
+            ]
+          } : {},
+          Centre ? { centre: { name: Centre } } : {},
+          date ? {
+            date: {
+              gte: filters.date.from ? new Date(filters.date.from) : undefined,
+              lt: filters.date.to ? new Date(new Date(filters.date.to).setDate(new Date(filters.date.to).getDate() + 1)) : undefined,
+            }
+          } : {}
+        ].filter(condition => Object.keys(condition).length > 0)
+      };
+    }
+
+
     if(currentUserId){
       where = { 
-        ...filters,
-        coordinator_id: currentUserId
-      };
+        ...where, 
+        coordinator_id: currentUserId 
+      }
     }
 
     const [operations, totalCount] = await Promise.all([
@@ -136,6 +168,7 @@ export async function getOperations({
     const formattedOperations: OperationDTO[] = operations.map(op => ({
       id: op.id,
       nombre: op.nombre,
+      date: op.date,
       coordinator_id: op.coordinator as Omit<UserDTO, 'password'>,
       operator_id: op.operator as Omit<UserDTO, 'password'>,
       centre: op.centre as CentreDTO,

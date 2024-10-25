@@ -54,8 +54,6 @@ export default function CentrePage() {
         loading={isLoading}
         addNew={() => setOpenToAddCentre(true)}
         addNewLabel='Ajouter un centre'
-        exportEndPoint='/commissions'
-        exportFileName='commissions'
       />
     </div>
   )

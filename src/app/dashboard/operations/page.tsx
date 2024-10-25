@@ -7,24 +7,38 @@ import { PaginationState, FilterState } from '@/components/data-table/types'
 import { AppConstants, QUERY_KEY } from '@/lib/constants'
 import { StatusEnum } from '@/lib/enums/status_enum'
 import { OperationDTO } from '../../../lib/dtos/operation_dto'
-import { useGetOperations } from '@/lib/hooks/use-operation'
+import { operationExportData, useGetOperations } from '@/lib/hooks/use-operation'
 import { FonctionEnum, RoleEnum } from '@/lib/enums/role_enum'
+import { useGetAllCentres } from '@/lib/hooks/use-centre'
+import { Button } from '@/components/ui/button'
+import ExportExcelButton from '@/components/data-table/export.excel'
 
 
 export default function OperationPage() {
 
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: AppConstants.pageSize })
   const [filters, setFilters] = useState<FilterState>({})
+  const { centres, isLoading: loadCentres } = useGetAllCentres({ getAllCentres: true });
 
 
-  console.log('filters', filters['role'])
-  const { operations, error, isLoading } = useGetOperations({ filters, pagination });
+  const { operations, error, isLoading } = useGetOperations({ 
+    filters:{
+      ...filters,
+      Fonction: filters['Fonction'] && filters['Fonction'][0],
+      Centre: filters['Centre'] && filters['Centre'][0],
+      date: filters['date'] && filters['date'][0]
+    },
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
+  });
   const handlePaginationChange = (newPagination: PaginationState) => {setPagination(newPagination)}
   const handleFiltersChange = (newFilters: FilterState) => setFilters(newFilters)
 
 
+
   const filterOptions = {
     Fonction: Object.values(FonctionEnum) as FonctionEnum[],
+    Centre: !loadCentres || centres?.data ? centres?.data?.map(centre => centre.name) as string[] : []
   }
 
   return (
@@ -39,8 +53,12 @@ export default function OperationPage() {
         filterOptions={filterOptions!}
         error={error?.message}
         loading={isLoading}
-        exportEndPoint='/commissions'
-        exportFileName='commissions'
+        exportComponent={
+          <ExportExcelButton
+            handleExport={() => operationExportData({ data: operations?.data ?? [] })}
+            loading={isLoading}
+          />
+        }
       />
     </div>
   )

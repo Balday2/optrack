@@ -9,6 +9,7 @@ import { useGetOperations } from '@/lib/hooks/use-operation'
 import { OperationDTO } from '@/lib/dtos/operation_dto'
 import { useSession } from 'next-auth/react'
 import { operationColumn } from '@/app/dashboard/operations/columns'
+import { FonctionEnum } from '@/lib/enums/role_enum'
 
 
 export default function OperationPage() {
@@ -19,7 +20,13 @@ export default function OperationPage() {
 
 
   const { operations, error, isLoading } = useGetOperations({ 
-    filters, pagination, 
+    filters:{
+      ...filters,
+      Fonction: filters['Fonction'] && filters['Fonction'][0],
+      date: filters['date'] && filters['date'][0]
+    },
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
     currentUserId: session?.user?.id ?? ''
   });
   const handlePaginationChange = (newPagination: PaginationState) => setPagination(newPagination)
@@ -29,7 +36,7 @@ export default function OperationPage() {
 
 
   const filterOptions = {
-    status: Object.values(StatusEnum) as StatusEnum[],
+    Fonction: Object.values(FonctionEnum) as FonctionEnum[],
   }
 
   return (
@@ -44,8 +51,6 @@ export default function OperationPage() {
         filterOptions={filterOptions!}
         error={error?.message}
         loading={isLoading || status === "loading"}
-        exportEndPoint='/commissions'
-        exportFileName='commissions'
       />
     </div>
   )

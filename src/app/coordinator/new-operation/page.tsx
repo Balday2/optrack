@@ -26,7 +26,11 @@ export default function NewOperationPage() {
 
 
   const { operations, error, isLoading } = useDailyOperations(session?.user?.id ?? '', RoleEnum.COORDINATOR);
-  const { users, isLoading: loadOperators } = useGetOperatorsByCoordinator({filters: {}, pagination});
+  const { users, isLoading: loadOperators } = useGetOperatorsByCoordinator({
+    filters: {},
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
+  });
 
 
 

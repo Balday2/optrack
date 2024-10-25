@@ -16,7 +16,6 @@ import { FonctionLabels } from '@/lib/enums/role_enum';
 
 export default function NewOperatorPage() {
   const { data: session, status } = useSession();
-  console.log({session})
   const { form, onSubmit, error, isPending } = useCreateUser({
     centreId: session?.user.centre_id,
     userId: session?.user.id

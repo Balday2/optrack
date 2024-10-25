@@ -34,16 +34,16 @@ export function useCreateUser({userId, centreId}: UserProps) {
       sexe: "",
       etatCivil: "",
       adresse: "",
-      centre_id: centreId ?? "",
-      coordinator_id: userId ?? "",
+      centre_id: centreId ?? undefined,
+      coordinator_id: userId ?? undefined,
       password: "000000",
-      matricule: ""
+      matricule: "",
+      role: RoleEnum.COORDINATOR, 
     },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
     setError(null);
-    console.log({data})
     startTransition(async () => {
       try {
         await createUser(data);
@@ -152,16 +152,16 @@ export function useGetCoordinators({page, limit, filters}: FilterParams) {
 }
 
 
-export function useGetOperators({filters = {}, pagination}: FilterParamsx) {
+export function useGetOperators({filters = {}, page, limit}: FilterParams) {
   const { data: users, error, isLoading } = useQuery({
-     queryKey: [QUERY_KEY.OPERATORS, {filters, pagination}],
+     queryKey: [QUERY_KEY.OPERATORS, {filters, page, limit}],
      queryFn:  () => getUsers({
       filters: {
         ...filters, 
         role: { notIn: [RoleEnum.ADMIN, RoleEnum.COORDINATOR] },
       },
-      page: pagination.pageIndex+1,
-      limit: pagination.pageSize
+      page: page ? page : undefined,
+      limit: limit ? limit : undefined,
     }),
      placeholderData: (prev) => prev
   });
@@ -169,19 +169,19 @@ export function useGetOperators({filters = {}, pagination}: FilterParamsx) {
 }
 
 
-export function useGetOperatorsByCoordinator({filters = {}, pagination}: FilterParamsx) {
+export function useGetOperatorsByCoordinator({filters, page, limit}: FilterParams) {
   const {data: session} = useSession();
   const { data: users, error, isLoading } = useQuery({
-     queryKey: [QUERY_KEY.OPERATORS, {filters, pagination}],
-     queryFn:  () => getUsers({
+    queryKey: [QUERY_KEY.OPERATORS, {filters, page, limit}],
+    queryFn:  () => getUsers({
       filters: {
         ...filters, 
         coordinator_id: session?.user?.id
       },
-      page: pagination.pageIndex+1,
-      limit: pagination.pageSize
+      page: page ? page : undefined,
+      limit: limit ? limit : undefined,
     }),
-     placeholderData: (prev) => prev
+    placeholderData: (prev) => prev
   });
   return { users, error, isLoading };
 }

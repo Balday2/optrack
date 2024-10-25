@@ -12,6 +12,7 @@ import EditOperatorPage from './edit-operator'
 import columns from '@/app/dashboard/coordinator-columns'
 import ToggleOperatorPage from './toggle-operator'
 import { useGetOperatorsByCoordinator } from '@/lib/hooks/use-user'
+import { FonctionEnum } from '@/lib/enums/role_enum'
 
 
 export default function CoordinatorPage() {
@@ -22,7 +23,15 @@ export default function CoordinatorPage() {
   
 
 
-  const { users, error, isLoading } = useGetOperatorsByCoordinator({ filters, pagination });
+  const { users, error, isLoading } = useGetOperatorsByCoordinator({ 
+    filters:{
+      ...filters,
+      status: filters['status'] && filters['status'][0],
+      role: filters['role'] && filters['role'][0],
+    },
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
+  });
   const handlePaginationChange = (newPagination: PaginationState) => setPagination(newPagination)
   const handleFiltersChange = (newFilters: FilterState) => setFilters(newFilters)
 
@@ -31,6 +40,7 @@ export default function CoordinatorPage() {
 
   const filterOptions = {
     status: Object.values(StatusEnum) as StatusEnum[],
+    role: Object.values(FonctionEnum) as FonctionEnum[],
   }
 
   return (
@@ -50,8 +60,6 @@ export default function CoordinatorPage() {
         loading={isLoading}
         addNew={() => setOpenToAddUser(true)}
         addNewLabel='Ajouter un operateur'
-        exportEndPoint='/commissions'
-        exportFileName='commissions'
       />
     </div>
   )

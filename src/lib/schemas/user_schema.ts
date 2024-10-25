@@ -10,13 +10,7 @@ export const CreateUserSchema = z.object({
   etatCivil: z.string({message: 'Etat civil invalide'}),
   centre_id: z.string({message: 'Centre invalide'}).optional(),
   coordinator_id: z.string({message: 'Coordinateur invalide'}).optional(),
-  role: z.string({message: 'Role invalide'})
-    .optional()
-    .refine(
-      (role) => Object.values(FonctionEnum)
-      .includes(role as FonctionEnum), {
-      message: 'Fonction invalide',
-    }),
+  role: z.string({message: 'Role invalide'}).optional(),
   matricule: z.string({message: 'Matricule est invalide'}),
   password: z
     .string({ message: 'Mot de passe invalide' })

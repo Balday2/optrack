@@ -17,7 +17,7 @@ export interface NewCoordinatorPageProps {
 }
 export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps) {
   const { form, onSubmit, error, isPending } = useCreateUser({});
-  const {openToAddUser, user, setOpenToAddUser} = useAppStore();
+  const {openToAddUser, setOpenToAddUser} = useAppStore();
 
 
   return (
@@ -99,13 +99,13 @@ export default function NewCoordinatorPage({ centres }: NewCoordinatorPageProps)
                     inputProps={{ placeholder: "Entrez le numéro de téléphone" }}
                   />
                 </div>
-                <FormInput
-                    form={form}
-                    name="matricule"
-                    label="Matricule"
-                    type="standard"
-                    inputProps={{ placeholder: "Entrez le matricule" }}
-                  />
+                  <FormInput
+                      form={form}
+                      name="matricule"
+                      label="Matricule"
+                      type="standard"
+                      inputProps={{ placeholder: "Entrez le matricule" }}
+                    />
                 {error && <FormError message={error} />}
               </CardContent>
               <CardFooter>

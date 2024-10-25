@@ -56,6 +56,7 @@ model Team {
 model Operation {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   nombre    Int
+  date DateTime
   centre_id   String @db.ObjectId
   centre      Centre   @relation(fields: [centre_id], references: [id])
   coordinator_id  String @db.ObjectId

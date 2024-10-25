@@ -29,10 +29,9 @@ export type DataTableProps<T> = {
   filterOptions?: { [key: string]: string[] };
   loading?: boolean;
   error?: string;
-  exportEndPoint?: string;
-  exportFileName?: string;
   addNew?: () => void;
   addNewLabel?: string;
+  exportComponent?: React.ReactNode
 };
 
 export type MapperDTO<T> = {

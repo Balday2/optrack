@@ -14,7 +14,6 @@ import { useUpdateOperation } from '@/lib/hooks/use-operation';
 export default function EditOperationModal() {
   const {openToEditOperation, operation, setOpenToEditOperation} = useAppStore();
   let operationId = operation ? operation!.id : ''
-  console.log({operation})
   const { form, onSubmit, error, isPending } = useUpdateOperation({
     operationId,
     onClose: () => setOpenToEditOperation(false)

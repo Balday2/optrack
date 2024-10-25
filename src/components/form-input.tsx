@@ -11,7 +11,7 @@ import {
 import { Input, InputProps } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-type BaseInputProps<TFieldValues extends FieldValues> = {
+export type BaseInputProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
   name: FieldPath<TFieldValues>
   label: string
