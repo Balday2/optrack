@@ -72,7 +72,7 @@ export function useCreateOperation(onClose: () => void) {
     startTransition(async () => {
       try {
         await createOperation(data);
-        toast.success("Utilisateur créé avec succès.");
+        toast.success("Operation créé avec succès.");
         form.reset();
         onClose();
         queryClient.invalidateQueries({ queryKey: [QUERY_KEY.OPERATIONS] });
