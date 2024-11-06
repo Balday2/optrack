@@ -66,3 +66,23 @@ model Operation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Prefecture {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  prefecture_id Int
+  nom String
+}
+
+model Commune {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  commune_id Int
+  nom String
+  prefecture_id Int
+}
+
+model Quartier {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  quartier_id Int
+  nom String
+  commune_id Int
+}

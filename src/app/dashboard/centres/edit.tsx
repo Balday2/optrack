@@ -8,17 +8,31 @@ import { Form } from '@/components/ui/form';
 import { FormError } from '@/components/form-error';
 import { Loader2 } from 'lucide-react';
 import { DialogAlert } from '@/components/dialog-alert';
-import { useUpdateCentre } from '@/lib/hooks/use-centre';
+import { useGetAllPrefecture, useGetCommunesByPrefectureId, useGetQuartiersByCommuneId, useUpdateCentre } from '@/lib/hooks/use-centre';
 import { useAppStore } from '@/lib/stores/app-store';
+import XCentreAdress from './centre_adress';
+import { CommuneDTO, PrefectureDTO, QuartierDTO } from '@/lib/dtos/centre_dto';
 
 export default function EditCentrePage() {
   const {openToEditCentre, setOpenToEditCentre, selectedCentre} = useAppStore();
   let centreId = selectedCentre ? selectedCentre.id : ''
-  const { form, onSubmit, error, isPending } = useUpdateCentre(
-    selectedCentre,
-    centreId,
-    () => setOpenToEditCentre(false)
-  );
+
+  const [selectedPrefecture, setSelectedPrefecture] = React.useState<PrefectureDTO | null>(null)
+  const [selectedCommune, setSelectedCommune] = React.useState<CommuneDTO | null>(null)
+  const [selectedQuartier, setSelectedQuartier] = React.useState<QuartierDTO | null>(null)
+
+  const { prefectures, isLoading: isPrefecturesLoading } = useGetAllPrefecture()
+  const { communes, isLoading: isCommunesLoading } = useGetCommunesByPrefectureId(selectedPrefecture?.prefecture_id ?? 0)
+  const { quartiers, isLoading: isQuartiersLoading } = useGetQuartiersByCommuneId(selectedCommune?.commune_id ?? 0)
+
+  const { form, onSubmit, error, isPending } = useUpdateCentre({
+    centreId: centreId,
+    onClose: () => setOpenToEditCentre(false),
+    prefecture: selectedPrefecture ? selectedPrefecture.nom : selectedCentre?.prefecture ?? '',
+    commune: selectedCommune ? selectedCommune.nom : selectedCentre?.commune ?? '',
+    quartier: selectedQuartier ? selectedQuartier.nom : selectedCentre?.quartier ?? '',
+  });
+  
 
 
   return (
@@ -41,36 +55,54 @@ export default function EditCentrePage() {
                       defaultValue: selectedCentre?.name
                     }}
                   />
-                  <FormInput
-                    form={form}
-                    name="prefecture"
-                    label="Préfecture"
-                    type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez la prefecture",
-                      defaultValue: selectedCentre?.prefecture
-                    }}
-                  />
-                  <FormInput
-                    form={form}
-                    name="commune"
-                    label="Commune"
-                    type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez la commune",
-                      defaultValue: selectedCentre?.commune
-                    }}
-                  />
-                  <FormInput
-                    form={form}
-                    name="quartier"
-                    label="Quartier"
-                    type="standard"
-                    inputProps={{ 
-                      placeholder: "Entrez le quartier",
-                      defaultValue: selectedCentre?.quartier
-                    }}
-                  />
+                  <div className="flex flex-col space-y-1.5">
+              <label>Préfecture</label>
+              <XCentreAdress<PrefectureDTO>
+                items={prefectures ?? []}
+                selectedItem={selectedPrefecture}
+                onSelectItem={(item) => {
+                  setSelectedPrefecture(item);
+                  setSelectedCommune(null);
+                  setSelectedQuartier(null);
+                }}
+                placeholder={selectedCentre?.prefecture ?? "Sélectionner une préfecture"}
+                loading={isPrefecturesLoading}
+                labelKey="nom"
+                valueKey="prefecture_id"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1.5">
+              <label>Commune</label>
+              <XCentreAdress<CommuneDTO>
+                items={communes ?? []}
+                selectedItem={selectedCommune}
+                onSelectItem={(item) => {
+                  setSelectedCommune(item);
+                  setSelectedQuartier(null);
+                }}
+                placeholder={selectedCentre?.commune ?? "Sélectionner une commune"}
+                loading={isCommunesLoading}
+                labelKey="nom"
+                valueKey="commune_id"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1.5">
+              <label>Quartier</label>
+              <XCentreAdress<QuartierDTO>
+                items={quartiers ?? []}
+                selectedItem={selectedQuartier}
+                onSelectItem={(item, event) => {
+                  event?.preventDefault();
+                  setSelectedQuartier(item);
+                }}
+                placeholder={selectedCentre?.quartier ?? "Sélectionner un quartier"}
+                loading={isQuartiersLoading}
+                labelKey="nom"
+                valueKey="quartier_id"
+              />
+            </div>
                 {error && <FormError message={error} />}
               </CardContent>
               <CardFooter>

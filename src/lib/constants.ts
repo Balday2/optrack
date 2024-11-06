@@ -3,6 +3,9 @@ export const QUERY_KEY = {
   USERS: 'users',
   OPERATORS: 'operators',
   OPERATIONS: 'operations',
+  PREFECTURES: 'prefectures',
+  COMMUNES: 'communes',
+  QUARTIERS: 'quartiers',
   DAILY_OPERATIONS: 'daily_operations'
 }
 

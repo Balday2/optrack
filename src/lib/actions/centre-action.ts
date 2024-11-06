@@ -3,7 +3,7 @@
 import { PrismaClient } from "@prisma/client";
 import { handleError } from "../error-handler";
 import { MapperDTO } from "@/types/mapper-typer";
-import { CentreDTO, CreateCentreDTO, UpdateCentreDTO } from "../dtos/centre_dto";
+import { CentreDTO, CommuneDTO, CreateCentreDTO, PrefectureDTO, QuartierDTO, UpdateCentreDTO } from "../dtos/centre_dto";
 import { CreateCentreSchema, UpdateCentreSchema } from "../schemas/centre_schema";
 import { revalidatePath } from "next/cache";
 import { SIDEBAR_PATHS } from "@/routes";
@@ -106,6 +106,43 @@ export async function getAllCentres({
         },
       };
     }
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+
+export async function getAllPrefecture() : Promise<PrefectureDTO[]> {
+  try {
+    const prefectures = await prisma.prefecture.findMany();
+    return prefectures as PrefectureDTO[];
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+export async function getCommunesByPrefectureId(prefectureId: number) : Promise<CommuneDTO[]> {
+  try {
+    const communes = await prisma.commune.findMany({
+      where: {
+        prefecture_id: prefectureId
+      }
+    });
+    return communes as CommuneDTO[];
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+
+export async function getQuartiersByCommuneId(communeId: number) : Promise<QuartierDTO[]> {
+  try {
+    const quartiers = await prisma.quartier.findMany({
+      where: {
+        commune_id: communeId
+      }
+    });
+    return quartiers as QuartierDTO[];
   } catch (error) {
     throw handleError(error);
   }

@@ -1,19 +1,23 @@
 import { useForm } from 'react-hook-form';
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { handleClientError } from '../error-handler';
 import { CentreDTO, CreateCentreDTO, UpdateCentreDTO } from '../dtos/centre_dto';
 import { CreateCentreSchema, UpdateCentreSchema } from '../schemas/centre_schema';
-import { createCentre, toggleCentre, getAllCentres, getCentreById, updateCentre } from '../actions/centre-action';
+import { createCentre, toggleCentre, getAllCentres, getCentreById, updateCentre, getAllPrefecture, getCommunesByPrefectureId, getQuartiersByCommuneId } from '../actions/centre-action';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AppConstants, QUERY_KEY } from '../constants';
-import { PaginationState } from '@tanstack/react-table';
-import { FilterParams, FilterParamsx, FilterState } from '@/components/data-table/types';
+import { QUERY_KEY } from '../constants';
 import { useAppStore } from '../stores/app-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+interface CreateCentreProps {
+  onClose: () => void;
+  prefecture: string;
+  commune: string;
+  quartier: string;
+}
 
-export function useCreateCentre(onClose: () => void) {
+export function useCreateCentre({ onClose, prefecture, commune, quartier }: CreateCentreProps) {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
@@ -42,14 +46,35 @@ export function useCreateCentre(onClose: () => void) {
   });
 
   const onSubmit = form.handleSubmit((data) => {
-    setError(null);
-    mutate(data);
+    if(prefecture === '' || commune === '' || quartier === '') {
+      toast.error("Veuillez sélectionner les adresses");
+      return;
+    } else {
+      let newData = {
+        ...data,
+        prefecture,
+        commune,
+        quartier
+      };
+      setError(null);
+      mutate(newData);
+    }
   });
+
   return { form, error, onSubmit, isPending };
 }
 
 
-export function useUpdateCentre(centre: CentreDTO | null, centreId: string, onClose: () => void) {
+interface UpdateCentreProps {
+  onClose: () => void;
+  centreId: string;
+  prefecture: string;
+  commune: string;
+  quartier: string;
+}
+
+
+export function useUpdateCentre({ onClose, centreId, prefecture, commune, quartier }: UpdateCentreProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -62,18 +87,29 @@ export function useUpdateCentre(centre: CentreDTO | null, centreId: string, onCl
 
   
   const onSubmit = form.handleSubmit(async (data: UpdateCentreDTO) => {
-    setError(null);
-    startTransition(async () => {
-      try {
-        await updateCentre({centreId: centreId, centreData: data});
-        toast.success("Centre mis à jour avec succès.");
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CENTRES] });
-        onClose();
-        form.reset();
-      } catch (error: unknown) {
-        setError(handleClientError(error));
-      }
-    });
+    if(prefecture === '' || commune === '' || quartier === '') {
+      toast.error("Veuillez sélectionner les adresses");
+      return;
+    } else {
+      let newData = {
+        ...data,
+        prefecture,
+        commune,
+        quartier
+      };
+      setError(null);
+      startTransition(async () => {
+        try {
+          await updateCentre({centreId: centreId, centreData: newData});
+          toast.success("Centre mis à jour avec succès.");
+          queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CENTRES] });
+          onClose();
+          form.reset();
+        } catch (error: unknown) {
+          setError(handleClientError(error));
+        }
+      });
+    }
   });
 
   return { form, error, onSubmit, isPending };
@@ -147,4 +183,33 @@ export function useGetAllCentres({ filters, page, limit, getAllCentres: getAllCe
   });
 
   return { centres, error, isLoading };
+}
+
+
+export function useGetAllPrefecture() {
+  const { data: prefectures, error, isLoading } = useQuery({
+    queryKey: [QUERY_KEY.PREFECTURES],
+    queryFn: () => getAllPrefecture(),
+    placeholderData: (prev) => prev,
+  });
+
+  return { prefectures, error, isLoading };
+}
+
+export function useGetCommunesByPrefectureId(prefectureId: number) {
+  const { data: communes, error, isLoading } = useQuery({
+    queryKey: [QUERY_KEY.COMMUNES, {prefectureId}],
+    queryFn: () => getCommunesByPrefectureId(prefectureId),
+    placeholderData: (prev) => prev,
+  });
+  return { communes, error, isLoading };
+}
+
+export function useGetQuartiersByCommuneId(communeId: number) {
+  const { data: quartiers, error, isLoading } = useQuery({
+    queryKey: [QUERY_KEY.QUARTIERS, {communeId}],
+    queryFn: () => getQuartiersByCommuneId(communeId),
+    placeholderData: (prev) => prev,
+  });
+  return { quartiers, error, isLoading };
 }
