@@ -1,0 +1,73 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Application de Gestion des Opérations
+Rôles et hiérarchie :
+
+Admin : Super-utilisateur du système
+Coordinateur : Gestionnaire de centre
+Opérateurs : Agents de terrain (agent, coursier, contrôleur, etc.)
+
+Fonctionnalités Admin :
+
+Créer/gérer les centres d'opération
+Créer les comptes coordinateurs et opérateurs
+Affecter un coordinateur à chaque centre
+Affecter les opérateurs aux centres
+
+Fonctionnalités Coordinateur :
+
+Créer les opérations journalières pour ses opérateurs
+Suivre l'avancement des opérations
+Gérer son équipe d'opérateurs
+
+Structure Opération :
+Operation {
+  id: string,
+  numero: number,
+  operateurId: string,
+  coordinateurId: string,
+  centreId: string,
+  date: date,
+  statut: enum (créée, en_cours, terminée),
+  description?: string
+}
+Relations :
+
+Centre → 1 Coordinateur
+Centre → N Opérateurs
+Coordinateur → N Opérations
+Opérateur → N Opérations
+
+Module Statistiques et Rapports
+Statistiques temporelles :
+
+Journalières : Opérations par jour, par opérateur, par centre
+Mensuelles : Tendances mensuelles, comparaison mois/mois
+Annuelles : Performance annuelle, évolution année/année
+
+Métriques principales :
+
+Nombre total d'opérations
+Taux de réussite/échec
+Productivité par opérateur
+Performance par centre
+Temps moyen par opération
+
+Rapports graphiques :
+
+Graphique en barres : Opérations par centre (top performers)
+Graphique linéaire : Évolution temporelle des opérations
+Graphique circulaire : Répartition des opérations par type d'opérateur
+Heatmap : Activité par centre sur l'année
+Dashboard : Vue d'ensemble temps réel
+
+Fonctionnalités rapports :
+
+Filtres par période (jour/semaine/mois/année)
+Filtres par centre, coordinateur, opérateur
+Export PDF/Excel
+Comparaisons périodiques
+Alertes de performance (centres sous-performants)

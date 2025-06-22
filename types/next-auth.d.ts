@@ -1,0 +1,37 @@
+import "next-auth";
+import "next-auth/jwt";
+
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+    user?: {
+      id?: string;
+      role: "admin" | "coordinator";
+      phone?: string;
+      centre_id?: string;
+    } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth" {
+  interface User {
+    id?: string;
+    role?: string;
+    phone?: string;
+    role: "admin" | "coordinator";
+    name?: string;
+    centre_id?: string;
+    accessToken?: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string;
+    id?: string;
+    role?: string;
+    phone?: string;
+    centre_id?: string;
+    phone?: string;
+  }
+}

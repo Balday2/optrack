@@ -1,0 +1,83 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Règles de développement Next.js - Architecture Scalable
+
+## Principes fondamentaux
+- Écrivez du code TypeScript concis et technique en utilisant des modèles de programmation fonctionnelle et déclarative
+- Évitez les classes; préférez l'itération et la modularisation
+- Structurez le projet selon l'architecture en couches (Layered Architecture)
+- Utilisez des noms de variables descriptifs avec verbes auxiliaires (ex: `isLoading`, `hasError`)
+
+## Conventions de nommage
+- Privilégiez les exports nommés pour les composants
+- Utilisez le modèle RORO (Receive Object, Return Object) pour les fonctions
+
+## Syntaxe et formatage
+- Utilisez le mot-clé "function" pour les fonctions pures
+- Évitez les accolades inutiles dans les conditions; utilisez une syntaxe concise pour les instructions simples
+- Écrivez du JSX déclaratif et lisible
+
+## Gestion des erreurs
+- Gérez les erreurs et cas limites au début des fonctions
+- Utilisez les retours anticipés pour les conditions d'erreur
+- Placez le chemin heureux en dernier dans la fonction
+- Implémentez des clauses de garde pour filtrer les états invalides
+- Les services doivent toujours renvoyer des erreurs conviviales pour l'utilisateur
+- Utilisez des limites d'erreur (error boundaries) pour les erreurs inattendues
+
+## Composants React/Next.js
+- Utilisez des composants fonctionnels avec des interfaces TypeScript
+- Structurez vos fichiers: composant exporté, sous-composants, helpers, contenu statique, types
+- Placez le contenu statique et les interfaces à la fin du fichier
+- Utilisez des variables de contenu pour le contenu statique en dehors des fonctions de rendu
+
+## UI et stylisation
+- Utilisez Shadcn UI, Radix UI et Tailwind CSS pour les composants et la stylisation
+- Implémentez un design responsive avec Tailwind CSS en utilisant une approche mobile-first
+- Maintenez une conception cohérente sur toutes les plateformes
+
+## Optimisation de performance
+- Minimisez l'utilisation de 'use client', 'useEffect' et 'setState'
+- Privilégiez les React Server Components (RSC) et les fonctionnalités SSR de Next.js
+- Utilisez 'use client' uniquement pour l'accès aux API Web dans de petits composants
+- Enveloppez les composants client dans Suspense avec fallback
+- Utilisez le chargement dynamique pour les composants non critiques
+- Optimisez les images: format WebP, données de taille, chargement différé
+- Priorisez les Web Vitals (LCP, CLS, FID)
+- Implémentez des importations dynamiques pour la division du code
+
+## Gestion d'état et récupération de données
+- Utilisez React Query pour la gestion de l'état serveur
+- Utilisez 'nuqs' pour la gestion des paramètres de recherche URL
+- Modélisez les erreurs attendues comme valeurs de retour dans les Server Actions
+- Utilisez useActionState avec react-hook-form pour la validation des formulaires
+
+## Actions serveur
+- Utilisez next-safe-action pour toutes les actions serveur:
+  - Implémentez des actions serveur typées avec validation appropriée
+  - Définissez des schémas d'entrée avec Zod pour une vérification de type robuste
+  - Gérez les erreurs avec élégance et renvoyez des réponses appropriées
+  - Utilisez `import type { ActionResponse } from '@/types/actions'`
+  - Assurez-vous que toutes les actions serveur renvoient le type ActionResponse
+
+## Validation de formulaire
+- Utilisez Zod pour la validation des schémas
+- Intégrez react-hook-form avec Zod pour la validation côté client
+- Utilisez useActionState pour gérer les erreurs de validation côté serveur
+
+## Base de données
+- Utilisez Mongoose pour les opérations de base de données
+- Implémentez des transactions pour les opérations atomiques
+- Isolez la logique de la base de données dans des services dédiés
+
+## Principes SOLID
+- Appliquez les principes SOLID dans votre architecture en couches
+- Adhérez à la responsabilité unique, à l'ouverture/fermeture, à la substitution de Liskov, à la ségrégation d'interface et à l'inversion de dépendance
+
+## Tests et documentation
+- Écrivez des tests unitaires pour les composants avec Jest et React Testing Library
+- Fournissez des commentaires clairs et concis pour la logique complexe
+- Utilisez les commentaires JSDoc pour les fonctions et les composants
