@@ -1,10 +1,9 @@
 // lib/mongodb.ts
 import mongoose from "mongoose";
 
-const MONGODB_URI = "mongodb://localhost:27017/optrack2";
-
+const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
-  throw new Error("Définir MONGODB_URI dans .env.local");
+  throw new Error("La variable d'environnement MONGODB_URI n'est pas définie !");
 }
 
 let cached = global.mongoose;
@@ -23,7 +22,7 @@ export async function connectDB() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       return mongoose;
     });
   }
