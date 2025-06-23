@@ -172,13 +172,19 @@ export function useTopCentersByOperations(filter: string) {
   return topCenters
  }
 
-export function useExportWeeklyReport(startDate: string, endDate: string) {
-  const weeklyReport = useQuery({
-    queryKey: [QUERY_KEY.OPERATION, "export-weekly-report", startDate, endDate],
-    queryFn: () => exportWeeklyReport(startDate, endDate),
+export function useExportWeeklyReport() {
+  const { mutate, isPending, data, error, isSuccess, isError } = useMutation({
+    mutationFn: ({ startDate, endDate }: { startDate: string; endDate: string }) => exportWeeklyReport(startDate, endDate),
   });
 
-  return weeklyReport;
+  return {
+    exportReport: mutate,
+    isLoading: isPending,
+    data,
+    error,
+    isSuccess,
+    isError
+  };
 }
 
 export function useTopOperatorsByOperations(filter: string) {

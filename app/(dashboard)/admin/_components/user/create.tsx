@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 import {
   Dialog,
@@ -40,7 +41,7 @@ export default function CreateCoordinator({ open, onOpenChange }: CreateUserProp
   const [openCentre, setOpenCentre] = useState(false);
   const [openRole, setOpenRole] = useState(false);
 
-  const pathname = window.location.pathname;
+  const pathname = usePathname();
   const pathValue = pathname.split('/').pop();
   const typeFonction = pathValue === 'coordinator' ? 'coordinator' : null;
 

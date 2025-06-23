@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
+import { format, parseISO } from 'date-fns';
 
-export async function exportWeeklyReportExcel(data, filename = 'rapport_expertise.xlsx') {
+export async function exportWeeklyReportExcel(data, startDate, endDate, filename = 'rapport_hebdomadaire.xlsx') {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Rapport');
   
@@ -26,7 +27,11 @@ export async function exportWeeklyReportExcel(data, filename = 'rapport_expertis
   // Ajouter et styliser le titre sur la nouvelle ligne 1
   worksheet.mergeCells('A1:L1');
   const titleCell = worksheet.getCell('A1');
-  titleCell.value = 'Rapport hebdomadaire entre le 16-06-2025 et 20-06-2025';
+  
+  const formattedStartDate = format(parseISO(startDate), 'dd-MM-yyyy');
+  const formattedEndDate = format(parseISO(endDate), 'dd-MM-yyyy');
+  titleCell.value = `Rapport hebdomadaire du ${formattedStartDate} au ${formattedEndDate}`;
+
   titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
   titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2E86AB' } };
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };

@@ -31,6 +31,7 @@ import { getUserById } from "@/lib/actions/user.action";
 import { useFonctionList } from "@/lib/hooks/fonction.hook";
 import { IFonction } from "@/lib/models/fonction.model";
 import { useCentreList } from "@/lib/hooks/centre.hook";
+import { usePathname } from "next/navigation";
 
 interface UpdateCoordinatorProps {
   open: boolean;
@@ -52,7 +53,7 @@ export default function UpdateCoordinator({ open, onOpenChange, coordinatorId }:
     enabled: open,
   });
 
-  const pathname = window.location.pathname;
+  const pathname = usePathname();
   const pathValue = pathname.split('/').pop();
   const typeFonction = pathValue === 'coordinator' ? 'coordinator' : null;
   

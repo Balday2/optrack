@@ -1,9 +1,9 @@
 "use client"
 
 import { DataTable } from "@/components/ui/table/table"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FilterValue } from "@/types"
-import { useExportWeeklyReport, useOperationByFilters } from "@/lib/hooks/operation.hook"
+import { useOperationByFilters } from "@/lib/hooks/operation.hook"
 import { OperationDTO } from "@/lib/DTO/operation.dto"
 import { PAGE_SIZE_OPTIONS } from "@/lib/constants"
 import operationColumns from "./table-column"
@@ -11,11 +11,13 @@ import { useSession } from "next-auth/react"
 import { RoleEnum } from "@/lib/Enums/role.enum"
 import { Button } from "@/components/ui/button"
 import CreateOperation from "./create"
+import WeekPicker from "@/components/week-picker"
+import { useExportWeeklyReport } from "@/lib/hooks/operation.hook"
 import { exportWeeklyReportExcel } from "./weekly.report"
 import { toast } from "sonner"
+import { format } from 'date-fns'
 
 export default function OperationListe() {
-
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE_OPTIONS[0] })
   const { data: session } = useSession()
   const [filters, setFilters] = useState<Record<string, FilterValue>>({
@@ -25,6 +27,8 @@ export default function OperationListe() {
     }
   })
   const [openCreate, setOpenCreate] = useState(false)
+  const [openWeekPicker, setOpenWeekPicker] = useState(false)
+  const [selectedExportDates, setSelectedExportDates] = useState<{ startDate: string, endDate: string } | null>(null);
 
   const { data, isLoading, error } = useOperationByFilters({ 
     page: pagination.pageIndex + 1, 
@@ -32,7 +36,24 @@ export default function OperationListe() {
     filters: filters
   })
 
-  const weeklyReport = useExportWeeklyReport("2025-06-16", "2025-06-20");
+  const { exportReport, isLoading: isExporting, data: exportData, isSuccess, isError } = useExportWeeklyReport();
+
+  useEffect(() => {
+    if (!selectedExportDates) return;
+
+    if(exportData && exportData.length === 0) {
+      toast.error("Aucune donnée trouvée pour la semaine sélectionnée");
+      setSelectedExportDates(null);
+    }
+    else if (isSuccess && exportData) {
+      exportWeeklyReportExcel(exportData, selectedExportDates.startDate, selectedExportDates.endDate);
+      setSelectedExportDates(null);
+    }
+    if (isError) {
+      toast.error("Erreur lors de la génération du rapport.");
+      setSelectedExportDates(null);
+    }
+  }, [isSuccess, isError, exportData, selectedExportDates]);
 
   const filterOptions = {
     date: [{
@@ -49,12 +70,11 @@ export default function OperationListe() {
     setFilters(newFilters)
   }
 
-  const handleExport = () => {
-    if (weeklyReport?.data) {
-      exportWeeklyReportExcel(weeklyReport.data)
-    } else {
-      toast.error("Erreur lors de l'exportation")
-    }
+  const handleExport = (selection: { weekStart: Date; weekEnd: Date }) => {
+    const startDate = format(selection.weekStart, 'yyyy-MM-dd');
+    const endDate = format(selection.weekEnd, 'yyyy-MM-dd');
+    setSelectedExportDates({ startDate, endDate });
+    exportReport({ startDate, endDate });
   }
 
   return (
@@ -83,14 +103,21 @@ export default function OperationListe() {
           )
         }
         onExport={{
-          loading: weeklyReport.isLoading,
-          onClick: handleExport
+          loading: isExporting,
+          onClick: () => setOpenWeekPicker(true)
         }}
       />
 
       <CreateOperation
         open={openCreate}
         onOpenChange={setOpenCreate}
+      />
+
+      <WeekPicker
+        open={openWeekPicker}
+        onOpenChange={setOpenWeekPicker}
+        onExport={handleExport}
+        isLoading={isExporting}
       />
     </>
   )
