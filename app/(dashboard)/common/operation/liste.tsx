@@ -1,32 +1,31 @@
 "use client"
 
-import { DataTable } from "@/components/ui/table/table"
-import { useEffect, useState } from "react"
-import { FilterValue } from "@/types"
-import { useOperationByFilters } from "@/lib/hooks/operation.hook"
-import { OperationDTO } from "@/lib/DTO/operation.dto"
-import { PAGE_SIZE_OPTIONS } from "@/lib/constants"
-import operationColumns from "./table-column"
-import { useSession } from "next-auth/react"
-import { RoleEnum } from "@/lib/Enums/role.enum"
 import { Button } from "@/components/ui/button"
-import CreateOperation from "./create"
+import { DataTable } from "@/components/ui/table/table"
 import WeekPicker from "@/components/week-picker"
-import { useExportWeeklyReport } from "@/lib/hooks/operation.hook"
-import { exportWeeklyReportExcel } from "./weekly.report"
-import { toast } from "sonner"
-import { format } from 'date-fns'
+import { OperationDTO } from "@/lib/DTO/operation.dto"
+import { RoleEnum } from "@/lib/Enums/role.enum"
+import { PAGE_SIZE_OPTIONS } from "@/lib/constants"
 import { useCentreList } from "@/lib/hooks/centre.hook"
 import { useFonctionList } from "@/lib/hooks/fonction.hook"
+import { useExportWeeklyReport, useOperationByFilters } from "@/lib/hooks/operation.hook"
+import { FilterValue } from "@/types"
+import { format } from 'date-fns'
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import CreateOperation from "./create"
+import operationColumns from "./table-column"
+import { exportWeeklyReportExcel } from "./weekly.report"
 
 export default function OperationListe() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE_OPTIONS[0] })
   const { data: session } = useSession()
   const [filters, setFilters] = useState<Record<string, FilterValue>>({
-    date: {
-      from: new Date(new Date().setHours(0, 0, 0, 0)),
-      to: null
-    }
+    // date: {
+    //   from: new Date(new Date().setHours(0, 0, 0, 0)),
+    //   to: null
+    // }
   })
   const [openCreate, setOpenCreate] = useState(false)
   const [openWeekPicker, setOpenWeekPicker] = useState(false)
@@ -62,10 +61,12 @@ export default function OperationListe() {
   }, [isSuccess, isError, exportData, selectedExportDates]);
 
   const filterOptions = {
-    date: [{
-      label: "Aujourd'hui",
-      value: new Date()
-    }]
+    date: [
+      // {
+      //   label: "Aujourd'hui",
+      //   value: new Date()
+      // }
+  ]
   }
 
   const handlePaginationChange = (newPagination: { pageIndex: number; pageSize: number }) => {
@@ -87,16 +88,13 @@ export default function OperationListe() {
     const endDate = format(selection.endDate, 'yyyy-MM-dd');
     setSelectedExportDates({ startDate, endDate });
 
-    // Vous pouvez utiliser centreId et fonction ici pour filtrer les données
-    console.log('Export config:', {
+    // Appeler l'export avec tous les filtres
+    exportReport({
       startDate,
       endDate,
-      periodType: selection.periodType,
       centreId: selection.centreId,
       fonction: selection.fonction
     });
-
-    exportReport({ startDate, endDate });
   }
 
   return (

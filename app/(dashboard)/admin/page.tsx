@@ -9,7 +9,7 @@ import { RoleEnum } from "@/lib/Enums/role.enum";
 import DashboardBox from "./_components/user/dashboard-box";
 import { useCentreList } from "@/lib/hooks/centre.hook";
 import { useActiveOperatorsCount } from "@/lib/hooks/user.hook";
-import { useOperationByFilters } from "@/lib/hooks/operation.hook";
+import { useTotalOperationsCount } from "@/lib/hooks/operation.hook";
 import { TopCentersChart } from "./_components/charts/top-centers-chart";
 import { TopOperatorsChart } from "./_components/charts/top-operators-chart";
 
@@ -19,11 +19,7 @@ export default function AdminPage() {
   const router = useRouter();
   const centreList = useCentreList();
   const countOperators = useActiveOperatorsCount();
-  const operationList = useOperationByFilters({
-    page: 1,
-    pageSize: 10,
-    filters: {}
-  })
+  const totalOperations = useTotalOperationsCount();
   
 
   useEffect(() => {
@@ -48,7 +44,7 @@ export default function AdminPage() {
               <DashboardBox title="Nombre de centres" value={centreList.data?.length || 0} />
               <DashboardBox title="Les coordinateurs" value={countOperators.data || 0} />
               <DashboardBox title="Les operateurs" value={countOperators.data || 0} />
-              <DashboardBox title="totales des opérations" value={operationList?.data?.pagination?.totalCount || 0} />
+              <DashboardBox title="totales des opérations" value={totalOperations.data || 0} />
             </div>
             <h2 className="text-[#1b0e0e] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 py-2 pt-2">Visualisation des données</h2>
             <div className="flex flex-wrap gap-4 px-4 py-3">
