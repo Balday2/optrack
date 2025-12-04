@@ -48,100 +48,120 @@ export async function exportWeeklyReportExcel(data, startDate, endDate, filename
   
   data.forEach(regionData => {
     const startRow = currentRow;
-    let regionTotalLundi = 0, regionTotalMardi = 0, regionTotalMercredi = 0;
-    let regionTotalJeudi = 0, regionTotalVendredi = 0, regionTotalGeneral = 0;
 
-    // Ajouter les centres de cette région
-    regionData.centres.forEach((centre, index) => {
-      const row = worksheet.getRow(currentRow);
-      row.height = 20;
-      const total = centre.lundi + centre.mardi + centre.mercredi + centre.jeudi + centre.vendredi;
-      
-      if (index === 0) {
-        // Première ligne : afficher le N° et la région
-        row.getCell(1).value = regionData.numero;
-        row.getCell(2).value = regionData.region;
+    // Regrouper les centres par fonction
+    const centresParFonction = {};
+    regionData.centres.forEach(centre => {
+      if (!centresParFonction[centre.fonction]) {
+        centresParFonction[centre.fonction] = [];
       }
-      
-      // Données du centre
-      row.getCell(3).value = centre.centre;
-      row.getCell(4).value = centre.matricule;
-      row.getCell(5).value = centre.nom;
-      row.getCell(6).value = centre.fonction;
-      row.getCell(7).value = centre.lundi;
-      row.getCell(8).value = centre.mardi;
-      row.getCell(9).value = centre.mercredi;
-      row.getCell(10).value = centre.jeudi;
-      row.getCell(11).value = centre.vendredi;
-      row.getCell(12).value = total;
+      centresParFonction[centre.fonction].push(centre);
+    });
 
-      // Cumuler les totaux
-      regionTotalLundi += centre.lundi;
-      regionTotalMardi += centre.mardi;
-      regionTotalMercredi += centre.mercredi;
-      regionTotalJeudi += centre.jeudi;
-      regionTotalVendredi += centre.vendredi;
-      regionTotalGeneral += total;
+    let firstGroup = true;
 
-      // Styliser les lignes de données
-      row.eachCell((cell, colNumber) => {
+    // Traiter chaque fonction séparément
+    Object.keys(centresParFonction).forEach(fonction => {
+      const centresDeCetteFonction = centresParFonction[fonction];
+      const fonctionStartRow = currentRow;
+
+      let fonctionTotalLundi = 0, fonctionTotalMardi = 0, fonctionTotalMercredi = 0;
+      let fonctionTotalJeudi = 0, fonctionTotalVendredi = 0, fonctionTotalGeneral = 0;
+
+      // Ajouter les centres de cette fonction
+      centresDeCetteFonction.forEach((centre, index) => {
+        const row = worksheet.getRow(currentRow);
+        row.height = 20;
+        const total = centre.lundi + centre.mardi + centre.mercredi + centre.jeudi + centre.vendredi;
+
+        if (firstGroup && index === 0) {
+          // Première ligne de la première fonction : afficher le N° et la région
+          row.getCell(1).value = regionData.numero;
+          row.getCell(2).value = regionData.region;
+          firstGroup = false;
+        }
+
+        // Données du centre
+        row.getCell(3).value = centre.centre;
+        row.getCell(4).value = centre.matricule;
+        row.getCell(5).value = centre.nom;
+        row.getCell(6).value = centre.fonction;
+        row.getCell(7).value = centre.lundi;
+        row.getCell(8).value = centre.mardi;
+        row.getCell(9).value = centre.mercredi;
+        row.getCell(10).value = centre.jeudi;
+        row.getCell(11).value = centre.vendredi;
+        row.getCell(12).value = total;
+
+        // Cumuler les totaux pour cette fonction
+        fonctionTotalLundi += centre.lundi;
+        fonctionTotalMardi += centre.mardi;
+        fonctionTotalMercredi += centre.mercredi;
+        fonctionTotalJeudi += centre.jeudi;
+        fonctionTotalVendredi += centre.vendredi;
+        fonctionTotalGeneral += total;
+
+        // Styliser les lignes de données
+        row.eachCell((cell, colNumber) => {
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FF000000' } },
+            left: { style: 'thin', color: { argb: 'FF000000' } },
+            bottom: { style: 'thin', color: { argb: 'FF000000' } },
+            right: { style: 'thin', color: { argb: 'FF000000' } }
+          };
+
+          // Padding vertical sur toutes les cellules
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          if (colNumber >= 7 && colNumber <= 12) {
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+          }
+        });
+
+        currentRow++;
+      });
+
+      // Ajouter la ligne de total pour cette fonction
+      const totalRow = worksheet.getRow(currentRow);
+      totalRow.height = 20;
+      totalRow.getCell(3).value = `Total ${fonction}`;
+      totalRow.getCell(7).value = fonctionTotalLundi;
+      totalRow.getCell(8).value = fonctionTotalMardi;
+      totalRow.getCell(9).value = fonctionTotalMercredi;
+      totalRow.getCell(10).value = fonctionTotalJeudi;
+      totalRow.getCell(11).value = fonctionTotalVendredi;
+      totalRow.getCell(12).value = fonctionTotalGeneral;
+
+      // Styliser la ligne de total avec fond orange
+      totalRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFA500' } };
+      totalRow.font = { bold: true };
+      totalRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // Bordures pour la ligne de total
+      totalRow.eachCell((cell) => {
         cell.border = {
           top: { style: 'thin', color: { argb: 'FF000000' } },
           left: { style: 'thin', color: { argb: 'FF000000' } },
           bottom: { style: 'thin', color: { argb: 'FF000000' } },
           right: { style: 'thin', color: { argb: 'FF000000' } }
         };
-
-        // Padding vertical sur toutes les cellules
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        if (colNumber >= 7 && colNumber <= 12) {
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        }
       });
 
       currentRow++;
     });
 
-    // Ajouter la ligne de total pour la région
-    const totalRow = worksheet.getRow(currentRow);
-    totalRow.height = 20;
-    totalRow.getCell(3).value = "Total d'expertise Techniques";
-    totalRow.getCell(7).value = regionTotalLundi;
-    totalRow.getCell(8).value = regionTotalMardi;
-    totalRow.getCell(9).value = regionTotalMercredi;
-    totalRow.getCell(10).value = regionTotalJeudi;
-    totalRow.getCell(11).value = regionTotalVendredi;
-    totalRow.getCell(12).value = regionTotalGeneral;
+    // Fusionner les cellules N° et Région pour toute la région
+    const endRow = currentRow - 1;
+    if (endRow > startRow) {
+      worksheet.mergeCells(`A${startRow}:A${endRow}`);
+      worksheet.mergeCells(`B${startRow}:B${endRow}`);
 
-    // Styliser la ligne de total avec fond orange
-    totalRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFA500' } };
-    totalRow.font = { bold: true };
-    totalRow.alignment = { horizontal: 'center', vertical: 'middle' };
-    
-    // Bordures pour la ligne de total
-    totalRow.eachCell((cell) => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
-      };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-    });
-
-    // Fusionner les cellules N° et Région si plusieurs centres
-    if (regionData.centres.length > 1) {
-      worksheet.mergeCells(`A${startRow}:A${currentRow - 1}`);
-      worksheet.mergeCells(`B${startRow}:B${currentRow - 1}`);
-      
       // Centrer verticalement les cellules fusionnées
       const numeroCell = worksheet.getCell(`A${startRow}`);
       const regionCell = worksheet.getCell(`B${startRow}`);
       numeroCell.alignment = { vertical: 'middle', horizontal: 'center' };
       regionCell.alignment = { vertical: 'middle', horizontal: 'center' };
     }
-
-    currentRow++;
   });
 
   // Télécharger le fichier
