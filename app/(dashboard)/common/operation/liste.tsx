@@ -16,6 +16,8 @@ import { useExportWeeklyReport } from "@/lib/hooks/operation.hook"
 import { exportWeeklyReportExcel } from "./weekly.report"
 import { toast } from "sonner"
 import { format } from 'date-fns'
+import { useCentreList } from "@/lib/hooks/centre.hook"
+import { useFonctionList } from "@/lib/hooks/fonction.hook"
 
 export default function OperationListe() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE_OPTIONS[0] })
@@ -30,13 +32,17 @@ export default function OperationListe() {
   const [openWeekPicker, setOpenWeekPicker] = useState(false)
   const [selectedExportDates, setSelectedExportDates] = useState<{ startDate: string, endDate: string } | null>(null);
 
-  const { data, isLoading, error } = useOperationByFilters({ 
-    page: pagination.pageIndex + 1, 
+  const { data, isLoading, error } = useOperationByFilters({
+    page: pagination.pageIndex + 1,
     pageSize: pagination.pageSize,
     filters: filters
   })
 
   const { exportReport, isLoading: isExporting, data: exportData, isSuccess, isError } = useExportWeeklyReport();
+
+  // Récupérer les centres et fonctions
+  const { data: centresData } = useCentreList();
+  const { data: fonctionsData } = useFonctionList();
 
   useEffect(() => {
     if (!selectedExportDates) return;
@@ -70,10 +76,26 @@ export default function OperationListe() {
     setFilters(newFilters)
   }
 
-  const handleExport = (selection: { weekStart: Date; weekEnd: Date }) => {
-    const startDate = format(selection.weekStart, 'yyyy-MM-dd');
-    const endDate = format(selection.weekEnd, 'yyyy-MM-dd');
+  const handleExport = (selection: {
+    startDate: Date;
+    endDate: Date;
+    periodType: string;
+    centreId?: string;
+    fonction?: string;
+  }) => {
+    const startDate = format(selection.startDate, 'yyyy-MM-dd');
+    const endDate = format(selection.endDate, 'yyyy-MM-dd');
     setSelectedExportDates({ startDate, endDate });
+
+    // Vous pouvez utiliser centreId et fonction ici pour filtrer les données
+    console.log('Export config:', {
+      startDate,
+      endDate,
+      periodType: selection.periodType,
+      centreId: selection.centreId,
+      fonction: selection.fonction
+    });
+
     exportReport({ startDate, endDate });
   }
 
@@ -118,6 +140,8 @@ export default function OperationListe() {
         onOpenChange={setOpenWeekPicker}
         onExport={handleExport}
         isLoading={isExporting}
+        centres={centresData || []}
+        fonctions={fonctionsData?.map(f => f.nom) || []}
       />
     </>
   )
