@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createOperation, getByFilters, toggleStatus, updateOperation, deleteOperation, getByFiltersByCoordinator, getTopCentersByOperations, getTopOperatorsByOperations, exportWeeklyReport } from "../actions/operation.action";
+import { createOperation, getByFilters, toggleStatus, updateOperation, deleteOperation, getByFiltersByCoordinator, getTopCentersByOperations, getTopOperatorsByOperations, exportWeeklyReport, getTotalOperationsCount, getAllOperationsCount } from "../actions/operation.action";
 import { CreateOperationDTO, UpdateOperationDTO } from "../DTO/operation.dto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateOperationSchema, UpdateOperationSchema } from "../validations/operation.validation";
@@ -174,7 +174,17 @@ export function useTopCentersByOperations(filter: string) {
 
 export function useExportWeeklyReport() {
   const { mutate, isPending, data, error, isSuccess, isError } = useMutation({
-    mutationFn: ({ startDate, endDate }: { startDate: string; endDate: string }) => exportWeeklyReport(startDate, endDate),
+    mutationFn: ({
+      startDate,
+      endDate,
+      centreId,
+      fonction
+    }: {
+      startDate: string;
+      endDate: string;
+      centreId?: string;
+      fonction?: string;
+    }) => exportWeeklyReport(startDate, endDate, centreId, fonction),
   });
 
   return {
@@ -192,6 +202,32 @@ export function useTopOperatorsByOperations(filter: string) {
      queryKey: [QUERY_KEY.OPERATION, "top-operators", filter],
      queryFn: () => getTopOperatorsByOperations(filter),
    });
- 
+
   return topOperators
  }
+
+export function useTotalOperationsCount() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [QUERY_KEY.OPERATION, "total-count"],
+    queryFn: () => getTotalOperationsCount(),
+  });
+
+  return {
+    data,
+    isLoading,
+    error,
+  };
+}
+
+export function useAllOperationsCount() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [QUERY_KEY.OPERATION, "all-count"],
+    queryFn: () => getAllOperationsCount(),
+  });
+
+  return {
+    data,
+    isLoading,
+    error,
+  };
+}

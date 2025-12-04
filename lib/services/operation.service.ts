@@ -131,53 +131,48 @@ export class OperationService {
     .populate("operator_id");
   }
 
-  static async exportWeeklyReport(startDate: string, endDate: string) {
+  static async exportWeeklyReport(
+    startDate: string,
+    endDate: string,
+    centreId?: string,
+    fonction?: string
+  ) {
     await connectDB();
-    
+
     // Convertir les dates en objets Date
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     // Vérifier que les dates sont valides
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       throw new Error("Les dates fournies ne sont pas valides");
     }
-    
-    // Vérifier que startDate est avant endDate
-    if (start >= end) {
-      throw new Error("La date de début doit être antérieure à la date de fin");
+
+    // Vérifier que startDate est avant ou égale à endDate
+    if (start > end) {
+      throw new Error("La date de début doit être antérieure ou égale à la date de fin");
     }
-    
+
     // Fonction pour obtenir le nom du jour de la semaine
     const getDayName = (date: Date): string => {
       const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
       return days[date.getDay()];
     };
-    
-    // Vérifier que startDate est un lundi
-    if (getDayName(start) !== 'lundi') {
-      throw new Error("La date de début doit être un lundi");
-    }
-    
-    // Vérifier que endDate est un vendredi
-    if (getDayName(end) !== 'vendredi') {
-      throw new Error("La date de fin doit être un vendredi");
-    }
-    
-    // Vérifier que l'intervalle correspond exactement à 5 jours (lundi à vendredi)
-    const diffTime = end.getTime() - start.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays !== 4) { // 4 car on compte de lundi à vendredi inclus
-      throw new Error("L'intervalle doit correspondre exactement à une semaine (lundi à vendredi)");
-    }
-    
-    const operations = await OperationModel.find({
-      date: { 
+
+    // Construction de la requête avec les filtres optionnels
+    const query: any = {
+      date: {
         $gte: start,
-        $lte: new Date(end.getTime() + 24 * 60 * 60 * 1000 - 1) // Fin de la journée vendredi
+        $lte: new Date(end.getTime() + 24 * 60 * 60 * 1000 - 1) // Fin de la journée
       }
-    })
+    };
+
+    // Ajouter le filtre centre si fourni
+    if (centreId && centreId !== 'all') {
+      query.centre_id = centreId;
+    }
+
+    const operations = await OperationModel.find(query)
     .populate("centre_id", ["name", "prefecture_id", "commune_id"])
     .populate("operator_id", ["prenom", "nom", "matricule", "role"])
     .populate("coordinator_id", ["prenom", "nom"])
@@ -189,16 +184,21 @@ export class OperationService {
     operations.forEach((operation: any) => {
       // Vérifier que toutes les données nécessaires sont présentes
       if (!operation.centre_id || !operation.operator_id) return;
-      
+
+      // Filtrer par fonction (rôle) si fourni
+      if (fonction && fonction !== 'all' && operation.operator_id.role !== fonction) {
+        return;
+      }
+
       const prefectureId = operation.centre_id.prefecture_id?.toString();
       const centreId = operation.centre_id._id?.toString();
       const operatorId = operation.operator_id._id?.toString();
-      
+
       if (!prefectureId || !centreId || !operatorId) return;
 
       const operationDate = new Date(operation.date);
       const dayName = getDayName(operationDate);
-      
+
       // Ignorer les opérations du samedi et dimanche (sécurité supplémentaire)
       if (dayName === 'samedi' || dayName === 'dimanche') return;
 
@@ -377,7 +377,7 @@ export class OperationService {
     );
 
     const topOperatorsPromise = OperationModel.aggregate(aggregationPipeline);
-    
+
     const [topOperators] = await Promise.all([
         topOperatorsPromise,
     ]);
@@ -385,5 +385,38 @@ export class OperationService {
     return {
       topOperators,
     };
+  }
+
+  static async getTotalOperationsCount() {
+    await connectDB();
+
+    const result = await OperationModel.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "operator_id",
+          foreignField: "_id",
+          as: "operator"
+        }
+      },
+      {
+        $unwind: "$operator"
+      },
+      {
+        $match: {
+          "operator.role": "Agent d'expertise"
+        }
+      },
+      {
+        $count: "total"
+      }
+    ]);
+
+    return result.length > 0 ? result[0].total : 0;
+  }
+
+  static async getAllOperationsCount() {
+    await connectDB();
+    return await OperationModel.countDocuments();
   }
 }

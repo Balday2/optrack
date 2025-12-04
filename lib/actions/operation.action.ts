@@ -83,9 +83,14 @@ export async function getTopCentersByOperations(filter: string) {
   }
 }
 
-export async function exportWeeklyReport(startDate: string, endDate: string) {
+export async function exportWeeklyReport(
+  startDate: string,
+  endDate: string,
+  centreId?: string,
+  fonction?: string
+) {
   try {
-    const data = await OperationService.exportWeeklyReport(startDate, endDate);
+    const data = await OperationService.exportWeeklyReport(startDate, endDate, centreId, fonction);
     return JSON.parse(JSON.stringify(data));
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : "Une erreur est survenue");
@@ -96,6 +101,24 @@ export async function getTopOperatorsByOperations(filter: string) {
   try {
     const data = await OperationService.getTopOperatorsByOperations(filter);
     return JSON.parse(JSON.stringify(data));
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : "Une erreur est survenue");
+  }
+}
+
+export async function getTotalOperationsCount() {
+  try {
+    const total = await OperationService.getTotalOperationsCount();
+    return total;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : "Une erreur est survenue");
+  }
+}
+
+export async function getAllOperationsCount() {
+  try {
+    const total = await OperationService.getAllOperationsCount();
+    return total;
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : "Une erreur est survenue");
   }
