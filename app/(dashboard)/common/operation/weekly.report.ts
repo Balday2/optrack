@@ -1,7 +1,7 @@
-import ExcelJS from 'exceljs';
 import { format, parseISO } from 'date-fns';
+import ExcelJS from 'exceljs';
 
-export async function exportWeeklyReportExcel(data, startDate, endDate, filename = 'rapport_hebdomadaire.xlsx') {
+export async function exportWeeklyReportExcel(data, startDate, endDate, filename = 'repporting.xlsx') {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Rapport');
   
@@ -30,7 +30,7 @@ export async function exportWeeklyReportExcel(data, startDate, endDate, filename
   
   const formattedStartDate = format(parseISO(startDate), 'dd-MM-yyyy');
   const formattedEndDate = format(parseISO(endDate), 'dd-MM-yyyy');
-  titleCell.value = `Rapport hebdomadaire du ${formattedStartDate} au ${formattedEndDate}`;
+  titleCell.value = `Rapporting du ${formattedStartDate} au ${formattedEndDate}`;
 
   titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
   titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2E86AB' } };
@@ -63,10 +63,11 @@ export async function exportWeeklyReportExcel(data, startDate, endDate, filename
     // Traiter chaque fonction séparément
     Object.keys(centresParFonction).forEach(fonction => {
       const centresDeCetteFonction = centresParFonction[fonction];
-      const fonctionStartRow = currentRow;
+      // const fonctionStartRow = currentRow;
 
-      let fonctionTotalLundi = 0, fonctionTotalMardi = 0, fonctionTotalMercredi = 0;
-      let fonctionTotalJeudi = 0, fonctionTotalVendredi = 0, fonctionTotalGeneral = 0;
+      // let fonctionTotalLundi = 0, fonctionTotalMardi = 0, fonctionTotalMercredi = 0;
+      // let fonctionTotalJeudi = 0, fonctionTotalVendredi = 0, 
+      const fonctionTotalGeneral = 0;
 
       // Ajouter les centres de cette fonction
       centresDeCetteFonction.forEach((centre, index) => {
@@ -94,12 +95,12 @@ export async function exportWeeklyReportExcel(data, startDate, endDate, filename
         row.getCell(12).value = total;
 
         // Cumuler les totaux pour cette fonction
-        fonctionTotalLundi += centre.lundi;
-        fonctionTotalMardi += centre.mardi;
-        fonctionTotalMercredi += centre.mercredi;
-        fonctionTotalJeudi += centre.jeudi;
-        fonctionTotalVendredi += centre.vendredi;
-        fonctionTotalGeneral += total;
+        // fonctionTotalLundi += centre.lundi;
+        // fonctionTotalMardi += centre.mardi;
+        // fonctionTotalMercredi += centre.mercredi;
+        // fonctionTotalJeudi += centre.jeudi;
+        // fonctionTotalVendredi += centre.vendredi;
+        // fonctionTotalGeneral += total;
 
         // Styliser les lignes de données
         row.eachCell((cell, colNumber) => {
@@ -124,11 +125,13 @@ export async function exportWeeklyReportExcel(data, startDate, endDate, filename
       const totalRow = worksheet.getRow(currentRow);
       totalRow.height = 20;
       totalRow.getCell(3).value = `Total ${fonction}`;
-      totalRow.getCell(7).value = fonctionTotalLundi;
-      totalRow.getCell(8).value = fonctionTotalMardi;
-      totalRow.getCell(9).value = fonctionTotalMercredi;
-      totalRow.getCell(10).value = fonctionTotalJeudi;
-      totalRow.getCell(11).value = fonctionTotalVendredi;
+      // Laisser les cellules des jours vides (colonnes 7 à 11)
+      totalRow.getCell(7).value = '';
+      totalRow.getCell(8).value = '';
+      totalRow.getCell(9).value = '';
+      totalRow.getCell(10).value = '';
+      totalRow.getCell(11).value = '';
+      // Seulement afficher le total général
       totalRow.getCell(12).value = fonctionTotalGeneral;
 
       // Styliser la ligne de total avec fond orange

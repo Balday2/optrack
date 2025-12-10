@@ -403,16 +403,22 @@ export class OperationService {
         $unwind: "$operator"
       },
       {
-        $match: {
-          "operator.role": "Agent d'expertise"
+        $group: {
+          _id: "$operator.role",
+          count: { $sum: 1 }
         }
-      },
-      {
-        $count: "total"
       }
     ]);
 
-    return result.length > 0 ? result[0].total : 0;
+    // Transformer le résultat en objet { role: count }
+    const countByRole: Record<string, number> = {};
+    result.forEach(item => {
+      if (item._id) {
+        countByRole[item._id] = item.count;
+      }
+    });
+
+    return countByRole;
   }
 
   static async getAllOperationsCount() {
